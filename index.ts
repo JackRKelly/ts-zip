@@ -6,7 +6,7 @@ const bufferToString = (buffer: Buffer): string => {
   return buffer.toString("hex").match(/../g).join(" ");
 };
 
-const minLength = (input: number, minLength: number) => {
+const minLength = (input: number, minLength: number): string => {
   let paddedNumber = input.toString();
   while (paddedNumber.length < minLength) {
     paddedNumber = "0" + paddedNumber;
@@ -14,13 +14,25 @@ const minLength = (input: number, minLength: number) => {
   return paddedNumber;
 };
 
-const decimalToBinary = (dec: number) => {
+const decimalToBinary = (dec: number): string => {
   return (dec >>> 0).toString(2);
 };
 
-const formatModtime = (timeBuffer: Buffer) => {
-  let totalTime: number =
-    (timeBuffer.readUInt8(0) << 8) | timeBuffer.readUInt8(1);
+const formatModDate = (buffer: Buffer): string => {
+  let totalDate: number = (buffer.readUInt8(0) << 8) | buffer.readUInt8(1);
+
+  let dayByte = totalDate & 0b0000000_0000_11111;
+  let monthByte = (totalDate >> 5) & 0b0000000_1111;
+  let yearByte = totalDate >> 9;
+
+  return `${minLength(monthByte, 2)}/${minLength(dayByte, 2)}/${minLength(
+    yearByte + 1980,
+    4
+  )}`;
+};
+
+const formatModTime = (buffer: Buffer): string => {
+  let totalTime: number = (buffer.readUInt8(0) << 8) | buffer.readUInt8(1);
 
   let secondByte = totalTime & 0b00000_000000_11111;
   let minuteByte = (totalTime >> 5) & 0b00000_111111;
@@ -34,14 +46,14 @@ const formatModtime = (timeBuffer: Buffer) => {
 
 fs.readFile(zipPath, (err, data) => {
   if (err) console.error(err);
-  // console.log(data.toString("hex").match(/../g).join(" "));
 
   let signature = data.slice(0, 4);
   let version = data.slice(4, 6);
   let flags = data.slice(6, 8);
   let compression = data.slice(8, 10);
-  let modTime = data.slice(10, 12);
-  let modDate = data.slice(12, 14);
-  // console.log(bufferToString(signature));
-  let modTimeFormatted = formatModtime(modTime);
+  let compressionType = compressionSwitch(compression);
+  let modTime = data.slice(11, 13);
+  let modDate = data.slice(13, 15);
+  let modTimeFormatted = formatModTime(modTime);
+  let modDateFormatted = formatModDate(modDate);
 });
