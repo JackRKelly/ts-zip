@@ -2,6 +2,54 @@ import * as fs from "fs";
 
 let zipPath = "./test.zip";
 
+const compressionSwitch = (buffer: Buffer) => {
+  let totalCompression: number =
+    (buffer.readUInt8(0) << 8) | buffer.readUInt8(1);
+
+  switch (totalCompression) {
+    case 0:
+      return "no compression";
+    case 1:
+      return "shrunk";
+    case 2:
+      return "reduced with compression factor 1";
+    case 3:
+      return "reduced with compression factor 2";
+    case 4:
+      return "reduced with compression factor 3";
+    case 5:
+      return "reduced with compression factor 4";
+    case 6:
+      return "imploded";
+    case 7:
+      return "reserved";
+    case 8:
+      return "deflated";
+    case 9:
+      return "enhanced deflated";
+    case 10:
+      return "PKWare DCL imploded";
+    case 11:
+      return "reserved";
+    case 12:
+      return "compressed using BZIP2";
+    case 13:
+      return "reserved";
+    case 14:
+      return "LZMA";
+    case 15:
+    case 16:
+    case 17:
+      return "reserved";
+    case 18:
+      return "compressed using IBM TERSE";
+    case 19:
+      return "IBM LZ77 z";
+    case 98:
+      return "PPMd version I, Rev 1";
+  }
+};
+
 const bufferToString = (buffer: Buffer): string => {
   return buffer.toString("hex").match(/../g).join(" ");
 };
