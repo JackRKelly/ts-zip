@@ -94,14 +94,15 @@ const formatModTime = (buffer: Buffer): string => {
 
 fs.readFile(zipPath, (err, data) => {
   if (err) console.error(err);
-
+  console.log(bufferToString(data));
   let signature = data.slice(0, 4);
   let version = data.slice(4, 6);
+  console.log(version);
   let flags = data.slice(6, 8);
   let compression = data.slice(8, 10);
   let compressionType = compressionSwitch(compression);
   let modTime = data.slice(11, 13);
-  let modDate = data.slice(13, 15);
   let modTimeFormatted = formatModTime(modTime);
+  let modDate = data.slice(13, 15);
   let modDateFormatted = formatModDate(modDate);
 });
