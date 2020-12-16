@@ -95,11 +95,9 @@ fs.readFile(zipPath, (err, data) => {
 
   let signature = data.slice(0, 4);
   const reader = new Reader(signature);
-  console.log(reader.endian);
   let extractVersionSlice = data.slice(4, 6);
   let extractVersion = reader.read2Bytes(extractVersionSlice);
-
-  let flags = data.slice(6, 8);
+  let bitFlag = data.slice(6, 8);
   let compression = data.slice(8, 10);
   let compressionType = compressionSwitch(reader.read2Bytes(compression));
   let modTime = data.slice(10, 12);
@@ -111,15 +109,23 @@ fs.readFile(zipPath, (err, data) => {
   let compressedSize = reader.read4Bytes(compressedSlice);
   let uncompressedSlice = data.slice(22, 26);
   let uncompressedSize = reader.read4Bytes(uncompressedSlice);
+  let fileNameLengthSlice = data.slice(26, 28);
+  let fileNameLength = reader.read2Bytes(fileNameLengthSlice);
+  let extraFieldLengthSlice = data.slice(28, 30);
+  let extraFieldLength = reader.read2Bytes(extraFieldLengthSlice);
+  let fileNameSlice = data.slice(30, 30 + fileNameLength);
   console.log({
     signature,
     extractVersion,
-    flags,
+    bitFlag,
     compressionType,
     modTimeFormatted,
     modDateFormatted,
     crc32,
     compressedSize,
     uncompressedSize,
+    fileNameLength,
+    extraFieldLength,
+    fileNameSlice,
   });
 });
