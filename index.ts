@@ -1,13 +1,12 @@
-import { sign } from "crypto";
+import { Reader } from "./reader";
 import * as fs from "fs";
 
 let zipPath = "./test.zip";
 
 const compressionSwitch = (buffer: Buffer) => {
-  let totalCompression: number =
-    (buffer.readUInt8(0) << 8) | buffer.readUInt8(1);
+  let compressionBytes: number = buffer.readInt16LE();
 
-  switch (totalCompression) {
+  switch (compressionBytes) {
     case 0:
       return "no compression";
     case 1:
@@ -49,6 +48,10 @@ const compressionSwitch = (buffer: Buffer) => {
     case 98:
       return "PPMd version I, Rev 1";
   }
+};
+
+const versionSwitch = (version: Buffer) => {
+  let versionBytes = version.readInt16LE();
 };
 
 const bufferToString = (buffer: Buffer): string => {
@@ -95,9 +98,11 @@ const formatModTime = (buffer: Buffer): string => {
 
 fs.readFile(zipPath, (err, data) => {
   if (err) console.error(err);
-  console.log(bufferToString(data));
+
   let signature = data.slice(0, 4);
-  let version = data.slice(4, 6);
+  const reader = new Reader(signature);
+  console.log(reader.endian);
+  let minExtractVersion = data.slice(4, 6);
   let flags = data.slice(6, 8);
   let compression = data.slice(8, 10);
   let compressionType = compressionSwitch(compression);
@@ -107,12 +112,12 @@ fs.readFile(zipPath, (err, data) => {
   let modDateFormatted = formatModDate(modDate);
   let crc32 = data.slice(14, 18);
   let compressedSlice = data.slice(18, 22);
-  let compressedSize = compressedSlice.readInt32LE();
+  let compressedSize = reader.read4Bytes(compressedSlice);
   let uncompressedSlice = data.slice(22, 26);
-  let uncompressedSize = uncompressedSlice.readInt32LE();
+  let uncompressedSize = reader.read4Bytes(uncompressedSlice);
   console.log({
     signature,
-    version,
+    minExtractVersion,
     flags,
     compressionType,
     modTimeFormatted,
