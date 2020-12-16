@@ -48,10 +48,6 @@ const compressionSwitch = (compressionBytes: number): string => {
   }
 };
 
-const versionSwitch = (version: Buffer) => {
-  let versionBytes = version.readInt16LE();
-};
-
 const bufferToString = (buffer: Buffer): string => {
   return buffer.toString("hex").match(/../g).join(" ");
 };

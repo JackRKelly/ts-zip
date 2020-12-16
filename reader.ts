@@ -3,6 +3,7 @@ enum Endian {
   Big,
 }
 
+//Local file header when the endianess is little.
 const LITTLE_ENDIAN_BUFFER: Buffer = Buffer.from("504b0304", "hex");
 
 export class Reader {
@@ -25,7 +26,16 @@ export class Reader {
     }
   }
 
+  read8Bytes(buffer: Buffer): BigInt {
+    if (this.endian === Endian.Little) {
+      return buffer.readBigUInt64LE();
+    } else {
+      return buffer.readBigUInt64LE();
+    }
+  }
+
   constructor(signature: Buffer) {
+    //Determine endianess on reader initialization.
     if (signature.readUInt32LE() === LITTLE_ENDIAN_BUFFER.readUInt32LE()) {
       console.log("Reading zip as little endian.");
       this.endian = Endian.Little;
