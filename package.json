@@ -2,7 +2,7 @@
   "name": "ts-zip",
   "license": "UNLICENSED",
   "scripts": {
-    "start": "nodemon src -x ts-node -w src",
+    "start": "nodemon src -x ts-node -e ts -w src",
     "test": "jest"
   },
   "dependencies": {},
