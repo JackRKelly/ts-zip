@@ -66,23 +66,23 @@ const decimalToBinary = (dec: number): string => {
 };
 
 const formatModDate = (dateBytes: number): string => {
-  let dayByte = dateBytes & 0b0000000_0000_11111;
-  let monthByte = (dateBytes >> 5) & 0b0000000_1111;
-  let yearByte = dateBytes >> 9;
+  let dayBits = dateBytes & 0b0000000_0000_11111;
+  let monthBits = (dateBytes >> 5) & 0b0000000_1111;
+  let yearBits = dateBytes >> 9;
 
-  return `${minLength(monthByte, 2)}/${minLength(dayByte, 2)}/${minLength(
-    yearByte + 1980,
+  return `${minLength(monthBits, 2)}/${minLength(dayBits, 2)}/${minLength(
+    yearBits + 1980,
     4
   )}`;
 };
 
 const formatModTime = (timeBytes: number): string => {
-  let secondByte = timeBytes & 0b00000_000000_11111;
-  let minuteByte = (timeBytes >> 5) & 0b00000_111111;
-  let hourByte = timeBytes >> 11;
+  let secondBits = timeBytes & 0b00000_000000_11111;
+  let minuteBits = (timeBytes >> 5) & 0b00000_111111;
+  let hourBits = timeBytes >> 11;
 
-  return `${minLength(hourByte, 2)}:${minLength(minuteByte, 2)}:${minLength(
-    secondByte * 2,
+  return `${minLength(hourBits, 2)}:${minLength(minuteBits, 2)}:${minLength(
+    secondBits * 2,
     2
   )}`;
 };
@@ -123,6 +123,7 @@ fs.readFile(zipPath, (err, data) => {
   //The index when the extra field ends.
   let extraFieldEnd = fileNameEnd + extraFieldLength;
   let extraFieldSlice = data.slice(fileNameEnd, extraFieldEnd);
+
   console.log({
     signature,
     extractVersion,
