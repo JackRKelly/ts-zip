@@ -19,22 +19,19 @@ const compressionSwitch = (compressionBytes: number): string => {
       return "reduced with compression factor 4";
     case 6:
       return "imploded";
-    case 7:
-      return "reserved";
     case 8:
       return "deflated";
     case 9:
       return "enhanced deflated";
     case 10:
       return "PKWare DCL imploded";
-    case 11:
-      return "reserved";
     case 12:
       return "compressed using BZIP2";
-    case 13:
-      return "reserved";
     case 14:
       return "LZMA";
+    case 7:
+    case 11:
+    case 13:
     case 15:
     case 16:
     case 17:
