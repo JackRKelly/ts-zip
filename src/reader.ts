@@ -1,4 +1,4 @@
-enum Endian {
+export enum Endian {
   Little,
   Big,
 }
@@ -37,10 +37,8 @@ export class Reader {
   constructor(signature: Buffer) {
     //Determine endianess on reader initialization.
     if (signature.readUInt32LE() === LITTLE_ENDIAN_BUFFER.readUInt32LE()) {
-      console.log("Reading zip as little endian.");
       this.endian = Endian.Little;
     } else {
-      console.log("Reading zip as big endian.");
       this.endian = Endian.Big;
     }
   }
