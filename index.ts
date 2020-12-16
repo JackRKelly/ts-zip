@@ -56,6 +56,10 @@ const bufferToString = (buffer: Buffer): string => {
   return buffer.toString("hex").match(/../g).join(" ");
 };
 
+const bufferToUTF8 = (buffer: Buffer): string => {
+  return buffer.toString("utf8");
+};
+
 const minLength = (input: number, minLength: number): string => {
   let paddedNumber = input.toString();
   while (paddedNumber.length < minLength) {
@@ -94,12 +98,17 @@ fs.readFile(zipPath, (err, data) => {
   if (err) console.error(err);
 
   let signature = data.slice(0, 4);
+  //Instantiate new reader class with signature to determine endianess.
   const reader = new Reader(signature);
+  //Get minimum version required to extract.
   let extractVersionSlice = data.slice(4, 6);
   let extractVersion = reader.read2Bytes(extractVersionSlice);
+  //General purpose bit flag.
   let bitFlag = data.slice(6, 8);
+  //Compression method
   let compression = data.slice(8, 10);
   let compressionType = compressionSwitch(reader.read2Bytes(compression));
+  //Last modification date and time and convert to readable format.
   let modTime = data.slice(10, 12);
   let modTimeFormatted = formatModTime(reader.read2Bytes(modTime));
   let modDate = data.slice(12, 14);
@@ -109,11 +118,18 @@ fs.readFile(zipPath, (err, data) => {
   let compressedSize = reader.read4Bytes(compressedSlice);
   let uncompressedSlice = data.slice(22, 26);
   let uncompressedSize = reader.read4Bytes(uncompressedSlice);
+  //Read the file name and convert to UTF8.
   let fileNameLengthSlice = data.slice(26, 28);
   let fileNameLength = reader.read2Bytes(fileNameLengthSlice);
   let extraFieldLengthSlice = data.slice(28, 30);
   let extraFieldLength = reader.read2Bytes(extraFieldLengthSlice);
-  let fileNameSlice = data.slice(30, 30 + fileNameLength);
+  //The index when the file name byte stream ends.
+  let fileNameEnd = 30 + fileNameLength;
+  let fileNameSlice = data.slice(30, fileNameEnd);
+  let fileName = bufferToUTF8(fileNameSlice);
+  //The index when the extra field ends.
+  let extraFieldEnd = fileNameEnd + extraFieldLength;
+  let extraFieldSlice = data.slice(fileNameEnd, extraFieldEnd);
   console.log({
     signature,
     extractVersion,
@@ -126,6 +142,7 @@ fs.readFile(zipPath, (err, data) => {
     uncompressedSize,
     fileNameLength,
     extraFieldLength,
-    fileNameSlice,
+    fileName,
+    extraFieldSlice,
   });
 });
