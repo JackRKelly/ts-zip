@@ -9,7 +9,15 @@ export class Reader {
   buffer: Buffer;
   endian: Endian;
 
-  read4Bytes(buffer: Buffer) {
+  read2Bytes(buffer: Buffer): number {
+    if (this.endian === Endian.Little) {
+      return buffer.readUInt16LE();
+    } else {
+      return buffer.readUInt16BE();
+    }
+  }
+
+  read4Bytes(buffer: Buffer): number {
     if (this.endian === Endian.Little) {
       return buffer.readUInt32LE();
     } else {

@@ -3,9 +3,7 @@ import * as fs from "fs";
 
 let zipPath = "./test.zip";
 
-const compressionSwitch = (buffer: Buffer) => {
-  let compressionBytes: number = buffer.readInt16LE();
-
+const compressionSwitch = (compressionBytes: number): string => {
   switch (compressionBytes) {
     case 0:
       return "no compression";
@@ -70,12 +68,10 @@ const decimalToBinary = (dec: number): string => {
   return (dec >>> 0).toString(2);
 };
 
-const formatModDate = (buffer: Buffer): string => {
-  let totalDate: number = buffer.readInt16LE();
-
-  let dayByte = totalDate & 0b0000000_0000_11111;
-  let monthByte = (totalDate >> 5) & 0b0000000_1111;
-  let yearByte = totalDate >> 9;
+const formatModDate = (dateBytes: number): string => {
+  let dayByte = dateBytes & 0b0000000_0000_11111;
+  let monthByte = (dateBytes >> 5) & 0b0000000_1111;
+  let yearByte = dateBytes >> 9;
 
   return `${minLength(monthByte, 2)}/${minLength(dayByte, 2)}/${minLength(
     yearByte + 1980,
@@ -83,12 +79,10 @@ const formatModDate = (buffer: Buffer): string => {
   )}`;
 };
 
-const formatModTime = (buffer: Buffer): string => {
-  let totalTime: number = buffer.readInt16LE();
-
-  let secondByte = totalTime & 0b00000_000000_11111;
-  let minuteByte = (totalTime >> 5) & 0b00000_111111;
-  let hourByte = totalTime >> 11;
+const formatModTime = (timeBytes: number): string => {
+  let secondByte = timeBytes & 0b00000_000000_11111;
+  let minuteByte = (timeBytes >> 5) & 0b00000_111111;
+  let hourByte = timeBytes >> 11;
 
   return `${minLength(hourByte, 2)}:${minLength(minuteByte, 2)}:${minLength(
     secondByte * 2,
@@ -102,14 +96,16 @@ fs.readFile(zipPath, (err, data) => {
   let signature = data.slice(0, 4);
   const reader = new Reader(signature);
   console.log(reader.endian);
-  let minExtractVersion = data.slice(4, 6);
+  let extractVersionSlice = data.slice(4, 6);
+  let extractVersion = reader.read2Bytes(extractVersionSlice);
+
   let flags = data.slice(6, 8);
   let compression = data.slice(8, 10);
-  let compressionType = compressionSwitch(compression);
+  let compressionType = compressionSwitch(reader.read2Bytes(compression));
   let modTime = data.slice(10, 12);
-  let modTimeFormatted = formatModTime(modTime);
+  let modTimeFormatted = formatModTime(reader.read2Bytes(modTime));
   let modDate = data.slice(12, 14);
-  let modDateFormatted = formatModDate(modDate);
+  let modDateFormatted = formatModDate(reader.read2Bytes(modDate));
   let crc32 = data.slice(14, 18);
   let compressedSlice = data.slice(18, 22);
   let compressedSize = reader.read4Bytes(compressedSlice);
@@ -117,7 +113,7 @@ fs.readFile(zipPath, (err, data) => {
   let uncompressedSize = reader.read4Bytes(uncompressedSlice);
   console.log({
     signature,
-    minExtractVersion,
+    extractVersion,
     flags,
     compressionType,
     modTimeFormatted,
