@@ -106,9 +106,10 @@ fs.readFile(zipPath, (err, data) => {
   let modDate = data.slice(12, 14);
   let modDateFormatted = formatModDate(modDate);
   let crc32 = data.slice(14, 18);
-  let compressedSize = data.slice(18, 22);
-  let compressedSizeEndian = compressedSize.readInt32LE();
-  let uncompressedSize = data.slice(22, 26);
+  let compressedSlice = data.slice(18, 22);
+  let compressedSize = compressedSlice.readInt32LE();
+  let uncompressedSlice = data.slice(22, 26);
+  let uncompressedSize = uncompressedSlice.readInt32LE();
   console.log({
     signature,
     version,
@@ -119,6 +120,5 @@ fs.readFile(zipPath, (err, data) => {
     crc32,
     compressedSize,
     uncompressedSize,
-    compressedSizeEndian,
   });
 });
