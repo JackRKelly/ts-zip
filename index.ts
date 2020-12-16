@@ -1,3 +1,4 @@
+import { sign } from "crypto";
 import * as fs from "fs";
 
 let zipPath = "./test.zip";
@@ -67,7 +68,7 @@ const decimalToBinary = (dec: number): string => {
 };
 
 const formatModDate = (buffer: Buffer): string => {
-  let totalDate: number = (buffer.readUInt8(0) << 8) | buffer.readUInt8(1);
+  let totalDate: number = buffer.readInt16LE();
 
   let dayByte = totalDate & 0b0000000_0000_11111;
   let monthByte = (totalDate >> 5) & 0b0000000_1111;
@@ -80,7 +81,7 @@ const formatModDate = (buffer: Buffer): string => {
 };
 
 const formatModTime = (buffer: Buffer): string => {
-  let totalTime: number = (buffer.readUInt8(0) << 8) | buffer.readUInt8(1);
+  let totalTime: number = buffer.readInt16LE();
 
   let secondByte = totalTime & 0b00000_000000_11111;
   let minuteByte = (totalTime >> 5) & 0b00000_111111;
@@ -97,12 +98,27 @@ fs.readFile(zipPath, (err, data) => {
   console.log(bufferToString(data));
   let signature = data.slice(0, 4);
   let version = data.slice(4, 6);
-  console.log(version);
   let flags = data.slice(6, 8);
   let compression = data.slice(8, 10);
   let compressionType = compressionSwitch(compression);
-  let modTime = data.slice(11, 13);
+  let modTime = data.slice(10, 12);
   let modTimeFormatted = formatModTime(modTime);
-  let modDate = data.slice(13, 15);
+  let modDate = data.slice(12, 14);
   let modDateFormatted = formatModDate(modDate);
+  let crc32 = data.slice(14, 18);
+  let compressedSize = data.slice(18, 22);
+  let compressedSizeEndian = compressedSize.readInt32LE();
+  let uncompressedSize = data.slice(22, 26);
+  console.log({
+    signature,
+    version,
+    flags,
+    compressionType,
+    modTimeFormatted,
+    modDateFormatted,
+    crc32,
+    compressedSize,
+    uncompressedSize,
+    compressedSizeEndian,
+  });
 });
