@@ -47,10 +47,6 @@ const bufferToString = (buffer: Buffer): string => {
   return buffer.toString("hex").match(/../g).join(" ");
 };
 
-const bufferToUTF8 = (buffer: Buffer): string => {
-  return buffer.toString("utf8");
-};
-
 const minLength = (input: number, minLength: number): string => {
   let paddedNumber = input.toString();
   while (paddedNumber.length < minLength) {
@@ -118,7 +114,7 @@ export function unzip(path: string) {
     //The index when the file name byte stream ends.
     let fileNameEnd = 30 + fileNameLength;
     let fileNameSlice = data.slice(30, fileNameEnd);
-    let fileName = bufferToUTF8(fileNameSlice);
+    let fileName = fileNameSlice.toString();
     //The index when the extra field ends.
     let extraFieldEnd = fileNameEnd + extraFieldLength;
     let extraFieldSlice = data.slice(fileNameEnd, extraFieldEnd);
