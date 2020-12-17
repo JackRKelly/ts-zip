@@ -84,40 +84,24 @@ const formatModTime = (timeBytes: number): string => {
 export function unzip(path: string) {
   fs.readFile(path, (err, data) => {
     if (err) console.error(err);
+    const reader = new Reader(data);
 
-    let signature = data.slice(0, 4);
-    //Instantiate new reader class with signature to determine endianess.
-    const reader = new Reader(signature);
-    //Get minimum version required to extract.
-    let extractVersionSlice = data.slice(4, 6);
-    let extractVersion = reader.read2Bytes(extractVersionSlice);
-    //General purpose bit flag.
-    let bitFlag = data.slice(6, 8);
-    //Compression method
-    let compression = data.slice(8, 10);
-    let compressionType = compressionSwitch(reader.read2Bytes(compression));
-    //Last modification date and time and convert to readable format.
-    let modTime = data.slice(10, 12);
-    let modTimeFormatted = formatModTime(reader.read2Bytes(modTime));
-    let modDate = data.slice(12, 14);
-    let modDateFormatted = formatModDate(reader.read2Bytes(modDate));
-    let crc32 = data.slice(14, 18);
-    let compressedSlice = data.slice(18, 22);
-    let compressedSize = reader.read4Bytes(compressedSlice);
-    let uncompressedSlice = data.slice(22, 26);
-    let uncompressedSize = reader.read4Bytes(uncompressedSlice);
-    //Read the file name and convert to UTF8.
-    let fileNameLengthSlice = data.slice(26, 28);
-    let fileNameLength = reader.read2Bytes(fileNameLengthSlice);
-    let extraFieldLengthSlice = data.slice(28, 30);
-    let extraFieldLength = reader.read2Bytes(extraFieldLengthSlice);
-    //The index when the file name byte stream ends.
-    let fileNameEnd = 30 + fileNameLength;
-    let fileNameSlice = data.slice(30, fileNameEnd);
-    let fileName = fileNameSlice.toString();
-    //The index when the extra field ends.
-    let extraFieldEnd = fileNameEnd + extraFieldLength;
-    let extraFieldSlice = data.slice(fileNameEnd, extraFieldEnd);
+    let signature = reader.read4Bytes(data);
+    let extractVersion = reader.read2Bytes(data);
+    let bitFlag = reader.read2Bytes(data);
+    let compression = reader.read2Bytes(data);
+    let compressionType = compressionSwitch(compression);
+    let modTime = reader.read2Bytes(data);
+    let modTimeFormatted = formatModTime(modTime);
+    let modDate = reader.read2Bytes(data);
+    let modDateFormatted = formatModDate(modDate);
+    let crc32 = reader.read4Bytes(data);
+    let compressedSize = reader.read4Bytes(data);
+    let uncompressedSize = reader.read4Bytes(data);
+    let fileNameLength = reader.read2Bytes(data);
+    let extraFieldLength = reader.read2Bytes(data);
+    let fileName = reader.sliceNBytes(data, fileNameLength).toString();
+    let extraField = reader.sliceNBytes(data, extraFieldLength);
 
     console.log({
       endianness: Endian[reader.endian],
@@ -133,7 +117,7 @@ export function unzip(path: string) {
       fileNameLength,
       extraFieldLength,
       fileName,
-      extraFieldSlice,
+      extraField,
     });
   });
 }
