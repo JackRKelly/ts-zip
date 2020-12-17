@@ -12,3 +12,12 @@ describe("Unzip", () => {
     mockUnzip();
   });
 });
+
+describe("Date & Time", () => {
+  test("Format modification time function", () => {
+    expect(formatModTime(19368) == "09:29:16");
+  });
+  test("Format modification date function", () => {
+    expect(formatModDate(20875) == "12/11/2020");
+  });
+});
