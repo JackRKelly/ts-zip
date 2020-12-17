@@ -62,20 +62,12 @@ const compressionSwitch = (compressionBytes: number): Compression => {
   }
 };
 
-const bufferToString = (buffer: Buffer): string => {
-  return buffer.toString("hex").match(/../g).join(" ");
-};
-
 const minLength = (input: number, minLength: number): string => {
   let paddedNumber = input.toString();
   while (paddedNumber.length < minLength) {
     paddedNumber = "0" + paddedNumber;
   }
   return paddedNumber;
-};
-
-const decimalToBinary = (dec: number): string => {
-  return dec.toString(2);
 };
 
 const formatModDate = (dateBytes: number): string => {
