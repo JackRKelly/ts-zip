@@ -97,25 +97,38 @@ export function unzip(path: string) {
     if (err) console.error(err);
     const reader = new Reader(data);
 
-    let zip = {
+    let signature = reader.read4Bytes(data);
+    let extractVersion = reader.read2Bytes(data);
+    let bitFlag = reader.read2Bytes(data);
+    let compression = reader.read2Bytes(data);
+    let compressionType = compressionSwitch(compression);
+    let modTime = reader.read2Bytes(data);
+    let modTimeFormatted = formatModTime(modTime);
+    let modDate = reader.read2Bytes(data);
+    let modDateFormatted = formatModDate(modDate);
+    let crc32 = reader.read4Bytes(data);
+    let compressedSize = reader.read4Bytes(data);
+    let uncompressedSize = reader.read4Bytes(data);
+    let fileNameLength = reader.read2Bytes(data);
+    let extraFieldLength = reader.read2Bytes(data);
+    let fileName = reader.sliceNBytes(data, fileNameLength).toString();
+    let extraField = reader.sliceNBytes(data, extraFieldLength);
+
+    console.log({
       endianness: Endian[reader.endian],
-      signature: reader.read4Bytes(data),
-      extractVersion: reader.read2Bytes(data),
-      bitFlag: reader.read2Bytes(data),
-      compression: reader.read2Bytes(data),
-      compressionType: compressionSwitch(this.compression),
-      modTime: reader.read2Bytes(data),
-      modTimeFormatted: formatModTime(this.modTime),
-      modDate: reader.read2Bytes(data),
-      modDateFormatted: formatModDate(this.modDate),
-      crc32: reader.read4Bytes(data),
-      compressedSize: reader.read4Bytes(data),
-      uncompressedSize: reader.read4Bytes(data),
-      fileNameLength: reader.read2Bytes(data),
-      extraFieldLength: reader.read2Bytes(data),
-      fileName: reader.sliceNBytes(data, this.fileNameLength).toString(),
-      extraField: reader.sliceNBytes(data, this.extraFieldLength),
-    };
-    console.log(zip);
+      signature,
+      extractVersion,
+      bitFlag,
+      compressionType,
+      modTimeFormatted,
+      modDateFormatted,
+      crc32,
+      compressedSize,
+      uncompressedSize,
+      fileNameLength,
+      extraFieldLength,
+      fileName,
+      extraField,
+    });
   });
 }
