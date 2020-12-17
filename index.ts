@@ -62,7 +62,7 @@ const minLength = (input: number, minLength: number): string => {
 };
 
 const decimalToBinary = (dec: number): string => {
-  return (dec >>> 0).toString(2);
+  return dec.toString(2);
 };
 
 const formatModDate = (dateBytes: number): string => {
@@ -93,7 +93,7 @@ fs.readFile(zipPath, (err, data) => {
   let signature = data.slice(0, 4);
   //Instantiate new reader class with signature to determine endianess.
   const reader = new Reader(signature);
-  //Get minimum version required to extract.
+  //Minimum version required to extract.
   let extractVersionSlice = data.slice(4, 6);
   let extractVersion = reader.read2Bytes(extractVersionSlice);
   //General purpose bit flag.
