@@ -1,45 +1,64 @@
 import { Reader, Endian } from "./reader";
 import * as fs from "fs";
 
-const compressionSwitch = (compressionBytes: number): string => {
+enum Compression {
+  None = 0,
+  Shrink = 1,
+  Factor1 = 2,
+  Factor2 = 3,
+  Factor3 = 4,
+  Factor4 = 5,
+  Implode = 6,
+  Reserved = 7,
+  Deflate = 8,
+  EnhancedDeflate = 9,
+  PKWareDclImplode = 10,
+  BZIP2 = 12,
+  LZMA = 14,
+  IbmTerse = 18,
+  IbmLZ77z = 19,
+  PPMd = 98,
+}
+
+const compressionSwitch = (compressionBytes: number): Compression => {
   switch (compressionBytes) {
     case 0:
-      return "no compression";
+      return Compression.None;
     case 1:
-      return "shrunk";
+      return Compression.Shrink;
     case 2:
-      return "reduced with compression factor 1";
+      return Compression.Factor1;
     case 3:
-      return "reduced with compression factor 2";
+      return Compression.Factor2;
     case 4:
-      return "reduced with compression factor 3";
+      return Compression.Factor3;
     case 5:
-      return "reduced with compression factor 4";
+      return Compression.Factor4;
     case 6:
-      return "imploded";
+      return Compression.Implode;
     case 8:
-      return "deflated";
+      return Compression.Deflate;
     case 9:
-      return "enhanced deflated";
+      return Compression.EnhancedDeflate;
     case 10:
-      return "PKWare DCL imploded";
+      return Compression.PKWareDclImplode;
     case 12:
-      return "compressed using BZIP2";
+      return Compression.BZIP2;
     case 14:
-      return "LZMA";
+      return Compression.LZMA;
     case 7:
     case 11:
     case 13:
     case 15:
     case 16:
     case 17:
-      return "reserved";
+      return Compression.Reserved;
     case 18:
-      return "compressed using IBM TERSE";
+      return Compression.IbmTerse;
     case 19:
-      return "IBM LZ77 z";
+      return Compression.IbmLZ77z;
     case 98:
-      return "PPMd version I, Rev 1";
+      return Compression.PPMd;
   }
 };
 
@@ -86,38 +105,25 @@ export function unzip(path: string) {
     if (err) console.error(err);
     const reader = new Reader(data);
 
-    let signature = reader.read4Bytes(data);
-    let extractVersion = reader.read2Bytes(data);
-    let bitFlag = reader.read2Bytes(data);
-    let compression = reader.read2Bytes(data);
-    let compressionType = compressionSwitch(compression);
-    let modTime = reader.read2Bytes(data);
-    let modTimeFormatted = formatModTime(modTime);
-    let modDate = reader.read2Bytes(data);
-    let modDateFormatted = formatModDate(modDate);
-    let crc32 = reader.read4Bytes(data);
-    let compressedSize = reader.read4Bytes(data);
-    let uncompressedSize = reader.read4Bytes(data);
-    let fileNameLength = reader.read2Bytes(data);
-    let extraFieldLength = reader.read2Bytes(data);
-    let fileName = reader.sliceNBytes(data, fileNameLength).toString();
-    let extraField = reader.sliceNBytes(data, extraFieldLength);
-
-    console.log({
+    let zip = {
       endianness: Endian[reader.endian],
-      signature,
-      extractVersion,
-      bitFlag,
-      compressionType,
-      modTimeFormatted,
-      modDateFormatted,
-      crc32,
-      compressedSize,
-      uncompressedSize,
-      fileNameLength,
-      extraFieldLength,
-      fileName,
-      extraField,
-    });
+      signature: reader.read4Bytes(data),
+      extractVersion: reader.read2Bytes(data),
+      bitFlag: reader.read2Bytes(data),
+      compression: reader.read2Bytes(data),
+      compressionType: compressionSwitch(this.compression),
+      modTime: reader.read2Bytes(data),
+      modTimeFormatted: formatModTime(this.modTime),
+      modDate: reader.read2Bytes(data),
+      modDateFormatted: formatModDate(this.modDate),
+      crc32: reader.read4Bytes(data),
+      compressedSize: reader.read4Bytes(data),
+      uncompressedSize: reader.read4Bytes(data),
+      fileNameLength: reader.read2Bytes(data),
+      extraFieldLength: reader.read2Bytes(data),
+      fileName: reader.sliceNBytes(data, this.fileNameLength).toString(),
+      extraField: reader.sliceNBytes(data, this.extraFieldLength),
+    };
+    console.log(zip);
   });
 }
