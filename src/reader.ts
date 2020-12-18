@@ -4,8 +4,8 @@ export enum Endian {
 }
 
 //Local file header when the endianess is little.
-const LITTLE_ENDIAN_BUFFER: Buffer = Buffer.from("504b0304", "hex");
-
+const LE_LOCAL_FILE_HEADER: Buffer = Buffer.from("504b0304", "hex");
+const LE_CENTRAL_DIRECTORY_HEADER: Buffer = Buffer.from("504b0102", "hex");
 export class Reader {
   buffer: Buffer;
   endian: Endian;
@@ -63,7 +63,7 @@ export class Reader {
     this.offset = 0;
     this.buffer = zip;
     //Determine endianess on reader initialization.
-    if (zip.readUInt32LE() === LITTLE_ENDIAN_BUFFER.readUInt32LE()) {
+    if (zip.readUInt32LE() === LE_LOCAL_FILE_HEADER.readUInt32LE()) {
       this.endian = Endian.Little;
     } else {
       this.endian = Endian.Big;
