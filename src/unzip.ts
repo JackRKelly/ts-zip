@@ -1,6 +1,6 @@
 import { Reader, Endian } from "./reader";
 import * as fs from "fs";
-import { compressionSwitch, formatModTime } from "./util";
+import { compressionSwitch, formatModTime, formatModDate } from "./util";
 
 export function unzip(path: string) {
   fs.readFile(path, (err, data) => {
@@ -15,7 +15,7 @@ export function unzip(path: string) {
     let modTime = reader.read2Bytes(data);
     let modTimeFormatted = formatModTime(modTime);
     let modDate = reader.read2Bytes(data);
-    let modDateFormatted = formatModTime(modDate);
+    let modDateFormatted = formatModDate(modDate);
     let crc32 = reader.read4Bytes(data);
     let compressedSize = reader.read4Bytes(data);
     let uncompressedSize = reader.read4Bytes(data);
