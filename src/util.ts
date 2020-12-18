@@ -59,7 +59,7 @@ export const compressionSwitch = (compressionBytes: number): Compression => {
   }
 };
 
-export const minLength = (input: number, minLength: number): string => {
+export const padNumber = (input: number, minLength: number): string => {
   let paddedNumber = input.toString();
   while (paddedNumber.length < minLength) {
     paddedNumber = "0" + paddedNumber;
@@ -72,7 +72,7 @@ export const formatModDate = (dateBytes: number): string => {
   let monthBits = (dateBytes >> 5) & 0b0000000_1111;
   let yearBits = dateBytes >> 9;
 
-  return `${minLength(monthBits, 2)}/${minLength(dayBits, 2)}/${minLength(
+  return `${padNumber(monthBits, 2)}/${padNumber(dayBits, 2)}/${padNumber(
     yearBits + 1980,
     4
   )}`;
@@ -83,7 +83,7 @@ export const formatModTime = (timeBytes: number): string => {
   let minuteBits = (timeBytes >> 5) & 0b00000_111111;
   let hourBits = timeBytes >> 11;
 
-  return `${minLength(hourBits, 2)}:${minLength(minuteBits, 2)}:${minLength(
+  return `${padNumber(hourBits, 2)}:${padNumber(minuteBits, 2)}:${padNumber(
     secondBits * 2,
     2
   )}`;
