@@ -1,7 +1,13 @@
 import "jest";
 import { expect } from "chai";
 import { unzip } from "../src/unzip";
-import { formatModDate, formatModTime, padNumber } from "../src/util";
+import {
+  compressionMethod,
+  CompressionMethod,
+  formatModDate,
+  formatModTime,
+  padNumber,
+} from "../src/util";
 import * as path from "path";
 
 describe("Unzip", () => {
@@ -27,5 +33,14 @@ describe("Utilities", () => {
   });
   test("Pad number to length of 4", () => {
     expect(padNumber(1, 4) == "0001");
+  });
+  test("None compression method", () => {
+    expect(compressionMethod(0) == CompressionMethod.None);
+  });
+  test("Reserved compression method", () => {
+    expect(compressionMethod(13) == CompressionMethod.Reserved);
+  });
+  test("PPMd compression method", () => {
+    expect(compressionMethod(13) == CompressionMethod.PPMd);
   });
 });

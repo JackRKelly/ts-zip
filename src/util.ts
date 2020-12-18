@@ -1,4 +1,4 @@
-export enum Compression {
+export enum CompressionMethod {
   None = 0,
   Shrink = 1,
   Factor1 = 2,
@@ -17,45 +17,47 @@ export enum Compression {
   PPMd = 98,
 }
 
-export const compressionSwitch = (compressionBytes: number): Compression => {
+export const compressionMethod = (
+  compressionBytes: number
+): CompressionMethod => {
   switch (compressionBytes) {
     case 0:
-      return Compression.None;
+      return CompressionMethod.None;
     case 1:
-      return Compression.Shrink;
+      return CompressionMethod.Shrink;
     case 2:
-      return Compression.Factor1;
+      return CompressionMethod.Factor1;
     case 3:
-      return Compression.Factor2;
+      return CompressionMethod.Factor2;
     case 4:
-      return Compression.Factor3;
+      return CompressionMethod.Factor3;
     case 5:
-      return Compression.Factor4;
+      return CompressionMethod.Factor4;
     case 6:
-      return Compression.Implode;
+      return CompressionMethod.Implode;
     case 8:
-      return Compression.Deflate;
+      return CompressionMethod.Deflate;
     case 9:
-      return Compression.EnhancedDeflate;
+      return CompressionMethod.EnhancedDeflate;
     case 10:
-      return Compression.PKWareDclImplode;
+      return CompressionMethod.PKWareDclImplode;
     case 12:
-      return Compression.BZIP2;
+      return CompressionMethod.BZIP2;
     case 14:
-      return Compression.LZMA;
+      return CompressionMethod.LZMA;
     case 7:
     case 11:
     case 13:
     case 15:
     case 16:
     case 17:
-      return Compression.Reserved;
+      return CompressionMethod.Reserved;
     case 18:
-      return Compression.IbmTerse;
+      return CompressionMethod.IbmTerse;
     case 19:
-      return Compression.IbmLZ77z;
+      return CompressionMethod.IbmLZ77z;
     case 98:
-      return Compression.PPMd;
+      return CompressionMethod.PPMd;
   }
 };
 
