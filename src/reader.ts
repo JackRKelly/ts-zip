@@ -59,6 +59,10 @@ export class Reader {
     }
   }
 
+  findHeader(header: string): number {
+    return this.buffer.indexOf(header, 0, "hex");
+  }
+
   constructor(zip: Buffer) {
     this.offset = 0;
     this.buffer = zip;

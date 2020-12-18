@@ -61,6 +61,10 @@ export const compressionMethod = (
   }
 };
 
+export const printBufferHex = (buffer: Buffer) => {
+  return buffer.toString("hex").match(/../g).join(" ");
+};
+
 export const padNumber = (input: number, minLength: number): string => {
   let paddedNumber = input.toString();
   while (paddedNumber.length < minLength) {

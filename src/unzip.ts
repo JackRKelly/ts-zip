@@ -37,11 +37,16 @@ const readLocalFileHeader = (reader: Reader) => {
   });
 };
 
+const readCentralDirectory = (reader: Reader) => {
+  reader.offset = reader.findHeader("504b0102");
+};
+
 export function unzip(path: string) {
   fs.readFile(path, (err, data) => {
     if (err) console.error(err);
     const reader = new Reader(data);
 
     readLocalFileHeader(reader);
+    readCentralDirectory(reader);
   });
 }
