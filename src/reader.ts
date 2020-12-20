@@ -66,6 +66,10 @@ export class Reader {
     return this.buffer.indexOf(header, 0, "hex");
   }
 
+  setOffset(offset: number): void {
+    this.offset = offset;
+  }
+
   constructor(zip: Buffer) {
     this.offset = 0;
     this.buffer = zip;
