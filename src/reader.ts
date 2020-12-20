@@ -19,51 +19,47 @@ export class Reader {
   offset: number;
 
   read2Bytes(): number {
+    let read: number;
     if (this.endian === Endian.Little) {
-      let read = this.buffer.readUInt16LE(this.offset);
-      this.offset += 2;
-      return read;
+      read = this.buffer.readUInt16LE(this.offset);
     } else {
-      let read = this.buffer.readUInt16BE(this.offset);
-      this.offset += 2;
-      return read;
+      read = this.buffer.readUInt16BE(this.offset);
     }
+    this.offset += 2;
+    return read;
   }
 
   read4Bytes(): number {
+    let read: number;
     if (this.endian === Endian.Little) {
-      let read = this.buffer.readUInt32LE(this.offset);
-      this.offset += 4;
-      return read;
+      read = this.buffer.readUInt32LE(this.offset);
     } else {
-      let read = this.buffer.readUInt32BE(this.offset);
-      this.offset += 4;
-      return read;
+      read = this.buffer.readUInt32BE(this.offset);
     }
+    this.offset += 4;
+    return read;
   }
 
   read8Bytes(): BigInt {
+    let read: BigInt;
     if (this.endian === Endian.Little) {
-      let read = this.buffer.readBigUInt64LE(this.offset);
-      this.offset += 8;
-      return read;
+      read = this.buffer.readBigUInt64LE(this.offset);
     } else {
-      let read = this.buffer.readBigUInt64LE(this.offset);
-      this.offset += 8;
-      return read;
+      read = this.buffer.readBigUInt64LE(this.offset);
     }
+    this.offset += 8;
+    return read;
   }
 
-  sliceNBytes(n: number) {
+  sliceNBytes(n: number): Buffer {
+    let read: Buffer;
     if (this.endian === Endian.Little) {
-      let read = this.buffer.slice(this.offset, this.offset + n);
-      this.offset += n;
-      return read;
+      read = this.buffer.slice(this.offset, this.offset + n);
     } else {
-      let read = this.buffer.slice(this.offset, this.offset + n);
-      this.offset += n;
-      return read;
+      read = this.buffer.slice(this.offset, this.offset + n);
     }
+    this.offset += n;
+    return read;
   }
 
   findHeader(header: string): number {
