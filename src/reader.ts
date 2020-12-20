@@ -3,9 +3,16 @@ export enum Endian {
   Big,
 }
 
+export enum LESignature {
+  LocalFile = "504b0304",
+  DataDescriptor = "504b0708",
+  CentralDirectory = "504b0102",
+  EndCentralDirectory = "504b0506",
+}
+
 //Local file header when the endianess is little.
-const LE_LOCAL_FILE_HEADER: Buffer = Buffer.from("504b0304", "hex");
-const LE_CENTRAL_DIRECTORY_HEADER: Buffer = Buffer.from("504b0102", "hex");
+const LE_LOCAL_FILE_HEADER: Buffer = Buffer.from(LESignature.LocalFile, "hex");
+
 export class Reader {
   buffer: Buffer;
   endian: Endian;

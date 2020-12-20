@@ -1,4 +1,4 @@
-import { Reader, Endian } from "./reader";
+import { Reader, Endian, LESignature } from "./reader";
 import * as fs from "fs";
 import { compressionMethod, formatModTime, formatModDate } from "./util";
 
@@ -17,6 +17,7 @@ const readLocalFileHeader = (reader: Reader) => {
   // 30	  | n	: File name
   // 30+n	| m	: Extra field
 
+  reader.offset = reader.findHeader(LESignature.LocalFile);
   let signature = reader.read4Bytes();
   let extractVersion = reader.read2Bytes();
   let bitFlag = reader.read2Bytes();
@@ -73,7 +74,7 @@ const readCentralDirectory = (reader: Reader) => {
   // 46+n	  | m	: Extra field
   // 46+n+m	| k	: File comment
 
-  reader.offset = reader.findHeader("504b0102");
+  reader.offset = reader.findHeader(LESignature.CentralDirectory);
   let signature = reader.read4Bytes();
   let version = reader.read2Bytes();
   let extractVersion = reader.read2Bytes();
@@ -131,7 +132,7 @@ const readEndCentralDirectory = (reader: Reader) => {
   // 20	| 2	: Comment length (n)
   // 22	| n	: Comment
 
-  reader.offset = reader.findHeader("504b0506");
+  reader.offset = reader.findHeader(LESignature.EndCentralDirectory);
   let signature = reader.read4Bytes();
   let diskNumber = reader.read2Bytes();
   let diskCentralStart = reader.read2Bytes();
