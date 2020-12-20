@@ -32,7 +32,7 @@ const readLocalFileHeader = (reader: Reader) => {
   let fileName = reader.sliceNBytes(fileNameLength).toString();
   let extraField = reader.sliceNBytes(extraFieldLength);
 
-  console.log({
+  return {
     endianness: Endian[reader.endian],
     signature,
     extractVersion,
@@ -48,7 +48,7 @@ const readLocalFileHeader = (reader: Reader) => {
     extraFieldLength,
     fileName,
     extraField,
-  });
+  };
 };
 
 const readCentralDirectory = (reader: Reader) => {
@@ -95,7 +95,7 @@ const readCentralDirectory = (reader: Reader) => {
   let extraField = reader.sliceNBytes(extraFieldLength);
   let fileComment = reader.sliceNBytes(fileCommentLength).toString();
 
-  console.log({
+  return {
     endianness: Endian[reader.endian],
     signature,
     version,
@@ -117,7 +117,7 @@ const readCentralDirectory = (reader: Reader) => {
     fileName,
     extraField,
     fileComment,
-  });
+  };
 };
 
 const readEndCentralDirectory = (reader: Reader) => {
@@ -142,7 +142,7 @@ const readEndCentralDirectory = (reader: Reader) => {
   let commentLength = reader.read2Bytes();
   let comment = reader.sliceNBytes(commentLength);
 
-  console.log({
+  return {
     endianness: Endian[reader.endian],
     signature,
     diskNumber,
@@ -153,7 +153,7 @@ const readEndCentralDirectory = (reader: Reader) => {
     offsetOfCentralDirectory,
     commentLength,
     comment,
-  });
+  };
 };
 
 export function unzip(path: string) {
@@ -161,8 +161,10 @@ export function unzip(path: string) {
     if (err) console.error(err);
     const reader = new Reader(data);
 
-    readLocalFileHeader(reader);
-    readCentralDirectory(reader);
-    readEndCentralDirectory(reader);
+    let localFileHeader = readLocalFileHeader(reader);
+    let centralDirectory = readCentralDirectory(reader);
+    let endCentralDirectory = readEndCentralDirectory(reader);
+
+    console.log(localFileHeader, centralDirectory, endCentralDirectory);
   });
 }
