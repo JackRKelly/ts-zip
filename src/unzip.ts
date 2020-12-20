@@ -1,8 +1,31 @@
 import { Reader, Endian, LESignature } from "./reader";
 import * as fs from "fs";
-import { compressionMethod, formatModTime, formatModDate } from "./util";
+import {
+  compressionMethod,
+  formatModTime,
+  formatModDate,
+  CompressionMethod,
+  versionMade,
+  OS,
+} from "./util";
 
-const readLocalFileHeader = (reader: Reader) => {
+interface ILocalFileHeader {
+  signature: number;
+  extractVersion: OS;
+  bitFlag: number;
+  compression: CompressionMethod;
+  modTime: string;
+  modDate: string;
+  crc32: number;
+  compressedSize: number;
+  uncompressedSize: number;
+  fileNameLength: number;
+  extraFieldLength: number;
+  fileName: string;
+  extraField: Buffer;
+}
+
+const readLocalFileHeader = (reader: Reader): ILocalFileHeader => {
   // 0    | 4 : Local file header signature = 0x04034b50 (read as a little-endian number)
   // 4    | 2 : Version needed to extract (minimum)
   // 6    | 2 : General purpose bit flag
@@ -19,9 +42,8 @@ const readLocalFileHeader = (reader: Reader) => {
 
   reader.setOffset(reader.findHeader(LESignature.LocalFile));
   let signature = reader.read4Bytes();
-  let extractVersion = reader.read2Bytes();
+  let extractVersion = versionMade(reader.read2Bytes());
   let bitFlag = reader.read2Bytes();
-  let descriptorPresent = ((bitFlag >> 3) & 0b0000_0000_0000_1000) !== 0;
   let compression = compressionMethod(reader.read2Bytes());
   let modTime = formatModTime(reader.read2Bytes());
   let modDate = formatModDate(reader.read2Bytes());
@@ -37,7 +59,6 @@ const readLocalFileHeader = (reader: Reader) => {
     signature,
     extractVersion,
     bitFlag,
-    descriptorPresent,
     compression,
     modTime,
     modDate,
@@ -51,7 +72,30 @@ const readLocalFileHeader = (reader: Reader) => {
   };
 };
 
-const readCentralDirectory = (reader: Reader) => {
+interface ICentralDirectory {
+  signature: number;
+  version: OS;
+  extractVersion: OS;
+  bitFlag: number;
+  compression: CompressionMethod;
+  modTime: string;
+  modDate: string;
+  crc32: number;
+  compressedSize: number;
+  uncompressedSize: number;
+  fileNameLength: number;
+  extraFieldLength: number;
+  fileCommentLength: number;
+  diskStart: number;
+  internalAttributes: number;
+  externalAttributes: number;
+  localHeaderOffset: number;
+  fileName: string;
+  extraField: Buffer;
+  fileComment: string;
+}
+
+const readCentralDirectory = (reader: Reader): ICentralDirectory => {
   // 0      | 4	: Central directory file header signature = 0x02014b50
   // 4      | 2	: Version made by
   // 6      | 2	: Version needed to extract (minimum)
@@ -75,8 +119,8 @@ const readCentralDirectory = (reader: Reader) => {
 
   reader.setOffset(reader.findHeader(LESignature.CentralDirectory));
   let signature = reader.read4Bytes();
-  let version = reader.read2Bytes();
-  let extractVersion = reader.read2Bytes();
+  let version = versionMade(reader.read2Bytes());
+  let extractVersion = versionMade(reader.read2Bytes());
   let bitFlag = reader.read2Bytes();
   let compression = compressionMethod(reader.read2Bytes());
   let modTime = formatModTime(reader.read2Bytes());
@@ -119,7 +163,19 @@ const readCentralDirectory = (reader: Reader) => {
   };
 };
 
-const readEndCentralDirectory = (reader: Reader) => {
+interface IEndCentralDirectory {
+  signature: number;
+  diskNumber: number;
+  diskCentralStart: number;
+  numberOfDirectoryRecords: number;
+  totalNumberOfRecords: number;
+  sizeOfCentralDirectory: number;
+  offsetOfCentralDirectory: number;
+  commentLength: number;
+  comment: string;
+}
+
+const readEndCentralDirectory = (reader: Reader): IEndCentralDirectory => {
   // 0  | 4 : End of central directory signature = 0x06054b50
   // 4  | 2 : Number of this disk
   // 6  | 2 : Disk where central directory starts
@@ -139,7 +195,7 @@ const readEndCentralDirectory = (reader: Reader) => {
   let sizeOfCentralDirectory = reader.read4Bytes();
   let offsetOfCentralDirectory = reader.read4Bytes();
   let commentLength = reader.read2Bytes();
-  let comment = reader.sliceNBytes(commentLength);
+  let comment = reader.sliceNBytes(commentLength).toString();
 
   return {
     signature,
@@ -158,6 +214,8 @@ export function unzip(path: string) {
   fs.readFile(path, (err, data) => {
     if (err) console.error(err);
     const reader = new Reader(data);
+
+    console.log(reader.buffer.toString("hex").match(/../g).join(" "));
 
     let localFileHeader = readLocalFileHeader(reader);
     let centralDirectory = readCentralDirectory(reader);

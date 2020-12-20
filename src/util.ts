@@ -1,3 +1,74 @@
+export enum OS {
+  MSDOS = 0,
+  Amiga = 1,
+  OpenVMS = 2,
+  UNIX = 3,
+  VMCMS = 4,
+  AtariST = 5,
+  OS2HPFS = 6,
+  Macintosh = 7,
+  ZSystem = 8,
+  CPM = 9,
+  WindowsNTFS = 10,
+  MVS = 11,
+  VSE = 12,
+  AcornRisc = 13,
+  VFAT = 14,
+  AlternateMVS = 15,
+  BeOS = 16,
+  Tandem = 17,
+  OS400 = 18,
+  OSX = 19,
+  Unused = 20,
+}
+
+export const versionMade = (versionMade: number): OS => {
+  switch (versionMade) {
+    case 0:
+      return OS.MSDOS;
+    case 1:
+      return OS.Amiga;
+    case 2:
+      return OS.OpenVMS;
+    case 3:
+      return OS.UNIX;
+    case 4:
+      return OS.VMCMS;
+    case 5:
+      return OS.AtariST;
+    case 6:
+      return OS.OS2HPFS;
+    case 7:
+      return OS.Macintosh;
+    case 8:
+      return OS.ZSystem;
+    case 9:
+      return OS.CPM;
+    case 10:
+      return OS.WindowsNTFS;
+    case 11:
+      return OS.MVS;
+    case 12:
+      return OS.VSE;
+    case 13:
+      return OS.AcornRisc;
+    case 14:
+      return OS.VFAT;
+    case 15:
+      return OS.AlternateMVS;
+    case 16:
+      return OS.BeOS;
+    case 17:
+      return OS.Tandem;
+    case 18:
+      return OS.OS400;
+    case 19:
+      return OS.OSX;
+    default:
+      return OS.Unused;
+  }
+};
+
 export enum CompressionMethod {
   None = 0,
   Shrink = 1,
