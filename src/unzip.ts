@@ -120,6 +120,42 @@ const readCentralDirectory = (reader: Reader) => {
   });
 };
 
+const readEndCentralDirectory = (reader: Reader) => {
+  // 0	| 4	: End of central directory signature = 0x06054b50
+  // 4	| 2	: Number of this disk
+  // 6	| 2	: Disk where central directory starts
+  // 8	| 2	: Number of central directory records on this disk
+  // 10	| 2	: Total number of central directory records
+  // 12	| 4	: Size of central directory (bytes)
+  // 16	| 4	: Offset of start of central directory, relative to start of archive
+  // 20	| 2	: Comment length (n)
+  // 22	| n	: Comment
+
+  reader.offset = reader.findHeader("504b0506");
+  let signature = reader.read4Bytes();
+  let diskNumber = reader.read2Bytes();
+  let diskCentralStart = reader.read2Bytes();
+  let numberOfDirectoryRecords = reader.read2Bytes();
+  let totalNumberOfRecords = reader.read2Bytes();
+  let sizeOfCentralDirectory = reader.read4Bytes();
+  let offsetOfCentralDirectory = reader.read4Bytes();
+  let commentLength = reader.read2Bytes();
+  let comment = reader.sliceNBytes(commentLength);
+
+  console.log({
+    endianness: Endian[reader.endian],
+    signature,
+    diskNumber,
+    diskCentralStart,
+    numberOfDirectoryRecords,
+    totalNumberOfRecords,
+    sizeOfCentralDirectory,
+    offsetOfCentralDirectory,
+    commentLength,
+    comment,
+  });
+};
+
 export function unzip(path: string) {
   fs.readFile(path, (err, data) => {
     if (err) console.error(err);
