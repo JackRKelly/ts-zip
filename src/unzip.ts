@@ -34,7 +34,6 @@ const readLocalFileHeader = (reader: Reader) => {
   let extraField = reader.sliceNBytes(extraFieldLength);
 
   return {
-    endianness: Endian[reader.endian],
     signature,
     extractVersion,
     bitFlag,
@@ -97,7 +96,6 @@ const readCentralDirectory = (reader: Reader) => {
   let fileComment = reader.sliceNBytes(fileCommentLength).toString();
 
   return {
-    endianness: Endian[reader.endian],
     signature,
     version,
     extractVersion,
@@ -144,7 +142,6 @@ const readEndCentralDirectory = (reader: Reader) => {
   let comment = reader.sliceNBytes(commentLength);
 
   return {
-    endianness: Endian[reader.endian],
     signature,
     diskNumber,
     diskCentralStart,
@@ -166,6 +163,11 @@ export function unzip(path: string) {
     let centralDirectory = readCentralDirectory(reader);
     let endCentralDirectory = readEndCentralDirectory(reader);
 
-    console.log(localFileHeader, centralDirectory, endCentralDirectory);
+    console.log(
+      localFileHeader,
+      centralDirectory,
+      endCentralDirectory,
+      Endian[reader.endian]
+    );
   });
 }
