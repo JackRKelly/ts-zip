@@ -38,7 +38,49 @@ const readLocalFileHeader = (reader: Reader) => {
 };
 
 const readCentralDirectory = (reader: Reader) => {
-  reader.offset = reader.findHeader("504b0102");
+  reader.offset = reader.findHeader("504b0102") + 4;
+  let version = reader.read2Bytes();
+  let extractVersion = reader.read2Bytes();
+  let bitFlag = reader.read2Bytes();
+  let compression = compressionMethod(reader.read2Bytes());
+  let modTime = formatModTime(reader.read2Bytes());
+  let modDate = formatModDate(reader.read2Bytes());
+  let crc32 = reader.read4Bytes();
+  let compressedSize = reader.read4Bytes();
+  let uncompressedSize = reader.read4Bytes();
+  let fileNameLength = reader.read2Bytes();
+  let extraFieldLength = reader.read2Bytes();
+  let fileCommentLength = reader.read2Bytes();
+  let diskStart = reader.read2Bytes();
+  let internalAttributes = reader.read2Bytes();
+  let externalAttributes = reader.read4Bytes();
+  let localHeaderOffset = reader.read4Bytes();
+  let fileName = reader.sliceNBytes(fileNameLength).toString();
+  let extraField = reader.sliceNBytes(extraFieldLength);
+  let fileComment = reader.sliceNBytes(fileCommentLength).toString();
+
+  console.log({
+    endianness: Endian[reader.endian],
+    version,
+    extractVersion,
+    bitFlag,
+    compression,
+    modTime,
+    modDate,
+    crc32,
+    compressedSize,
+    uncompressedSize,
+    fileNameLength,
+    extraFieldLength,
+    fileCommentLength,
+    diskStart,
+    internalAttributes,
+    externalAttributes,
+    localHeaderOffset,
+    fileName,
+    extraField,
+    fileComment,
+  });
 };
 
 export function unzip(path: string) {
