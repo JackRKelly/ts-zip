@@ -62,8 +62,8 @@ export class Reader {
     return read;
   }
 
-  findHeader(header: string): number {
-    return this.buffer.indexOf(header, 0, "hex");
+  findHeader(header: string, byteOffset: number = 0): number {
+    return this.buffer.indexOf(header, byteOffset, "hex");
   }
 
   setOffset(offset: number): void {

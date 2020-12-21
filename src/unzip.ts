@@ -83,7 +83,7 @@ const readLocalFileHeader = (reader: Reader): ILocalFileHeader => {
   // 30   | n : File name
   // 30+n | m : Extra field
 
-  reader.setOffset(reader.findHeader(LESignature.LocalFile));
+  reader.setOffset(reader.findHeader(LESignature.LocalFile, reader.offset));
   let signature = reader.read4Bytes();
   let extractVersion = versionMade(reader.read2Bytes());
   let bitFlag = readBitFlag(reader.read2Bytes());
@@ -160,7 +160,9 @@ const readCentralDirectory = (reader: Reader): ICentralDirectory => {
   // 46+n   | m	: Extra field
   // 46+n+m | k	: File comment
 
-  reader.setOffset(reader.findHeader(LESignature.CentralDirectory));
+  reader.setOffset(
+    reader.findHeader(LESignature.CentralDirectory, reader.offset)
+  );
   let signature = reader.read4Bytes();
   let version = versionMade(reader.read2Bytes());
   let extractVersion = reader.read2Bytes();
@@ -258,13 +260,33 @@ export function unzip(path: string) {
     if (err) console.error(err);
     const reader = new Reader(data);
 
-    let localFileHeader = readLocalFileHeader(reader);
-    let centralDirectory = readCentralDirectory(reader);
+    let localFileHeaders: Array<ILocalFileHeader> = [];
+
+    while (
+      reader.buffer.includes(
+        Buffer.from(LESignature.LocalFile, "hex"),
+        reader.offset
+      )
+    ) {
+      localFileHeaders.push(readLocalFileHeader(reader));
+    }
+
+    let centralDirectories: Array<ICentralDirectory> = [];
+
+    while (
+      reader.buffer.includes(
+        Buffer.from(LESignature.CentralDirectory, "hex"),
+        reader.offset
+      )
+    ) {
+      centralDirectories.push(readCentralDirectory(reader));
+    }
+
     let endCentralDirectory = readEndCentralDirectory(reader);
 
     console.log(
-      localFileHeader,
-      centralDirectory,
+      localFileHeaders,
+      centralDirectories,
       endCentralDirectory,
       Endian[reader.endian]
     );
