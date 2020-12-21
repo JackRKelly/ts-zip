@@ -68,7 +68,7 @@ interface ILocalFileHeader {
   extraField: Buffer;
 }
 
-const readLocalFileHeader = (reader: Reader): ILocalFileHeader => {
+const readLocalFileHeaders = (reader: Reader): Array<ILocalFileHeader> => {
   // 0    | 4 : Local file header signature = 0x04034b50 (read as a little-endian number)
   // 4    | 2 : Version needed to extract (minimum)
   // 6    | 2 : General purpose bit flag
@@ -83,36 +83,47 @@ const readLocalFileHeader = (reader: Reader): ILocalFileHeader => {
   // 30   | n : File name
   // 30+n | m : Extra field
 
-  reader.setOffset(reader.findHeader(LESignature.LocalFile, reader.offset));
-  let signature = reader.read4Bytes();
-  let extractVersion = versionMade(reader.read2Bytes());
-  let bitFlag = readBitFlag(reader.read2Bytes());
-  let compression = compressionMethod(reader.read2Bytes());
-  let modTime = formatModTime(reader.read2Bytes());
-  let modDate = formatModDate(reader.read2Bytes());
-  let crc32 = reader.read4Bytes();
-  let compressedSize = reader.read4Bytes();
-  let uncompressedSize = reader.read4Bytes();
-  let fileNameLength = reader.read2Bytes();
-  let extraFieldLength = reader.read2Bytes();
-  let fileName = reader.sliceNBytes(fileNameLength).toString();
-  let extraField = reader.sliceNBytes(extraFieldLength);
+  let localFileHeaders: Array<ILocalFileHeader> = [];
 
-  return {
-    signature,
-    extractVersion,
-    bitFlag,
-    compression,
-    modTime,
-    modDate,
-    crc32,
-    compressedSize,
-    uncompressedSize,
-    fileNameLength,
-    extraFieldLength,
-    fileName,
-    extraField,
-  };
+  while (
+    reader.buffer.includes(
+      Buffer.from(LESignature.LocalFile, "hex"),
+      reader.offset
+    )
+  ) {
+    reader.setOffset(reader.findHeader(LESignature.LocalFile, reader.offset));
+    let signature = reader.read4Bytes();
+    let extractVersion = versionMade(reader.read2Bytes());
+    let bitFlag = readBitFlag(reader.read2Bytes());
+    let compression = compressionMethod(reader.read2Bytes());
+    let modTime = formatModTime(reader.read2Bytes());
+    let modDate = formatModDate(reader.read2Bytes());
+    let crc32 = reader.read4Bytes();
+    let compressedSize = reader.read4Bytes();
+    let uncompressedSize = reader.read4Bytes();
+    let fileNameLength = reader.read2Bytes();
+    let extraFieldLength = reader.read2Bytes();
+    let fileName = reader.sliceNBytes(fileNameLength).toString();
+    let extraField = reader.sliceNBytes(extraFieldLength);
+
+    localFileHeaders.push({
+      signature,
+      extractVersion,
+      bitFlag,
+      compression,
+      modTime,
+      modDate,
+      crc32,
+      compressedSize,
+      uncompressedSize,
+      fileNameLength,
+      extraFieldLength,
+      fileName,
+      extraField,
+    });
+  }
+
+  return localFileHeaders;
 };
 
 interface ICentralDirectory {
@@ -138,7 +149,7 @@ interface ICentralDirectory {
   fileComment: string;
 }
 
-const readCentralDirectory = (reader: Reader): ICentralDirectory => {
+const readCentralDirectories = (reader: Reader): Array<ICentralDirectory> => {
   // 0      | 4	: Central directory file header signature = 0x02014b50
   // 4      | 2	: Version made by
   // 6      | 2	: Version needed to extract (minimum)
@@ -160,52 +171,63 @@ const readCentralDirectory = (reader: Reader): ICentralDirectory => {
   // 46+n   | m	: Extra field
   // 46+n+m | k	: File comment
 
-  reader.setOffset(
-    reader.findHeader(LESignature.CentralDirectory, reader.offset)
-  );
-  let signature = reader.read4Bytes();
-  let version = versionMade(reader.read2Bytes());
-  let extractVersion = reader.read2Bytes();
-  let bitFlag = readBitFlag(reader.read2Bytes());
-  let compression = compressionMethod(reader.read2Bytes());
-  let modTime = formatModTime(reader.read2Bytes());
-  let modDate = formatModDate(reader.read2Bytes());
-  let crc32 = reader.read4Bytes();
-  let compressedSize = reader.read4Bytes();
-  let uncompressedSize = reader.read4Bytes();
-  let fileNameLength = reader.read2Bytes();
-  let extraFieldLength = reader.read2Bytes();
-  let fileCommentLength = reader.read2Bytes();
-  let diskStart = reader.read2Bytes();
-  let internalAttributes = reader.read2Bytes();
-  let externalAttributes = reader.read4Bytes();
-  let localHeaderOffset = reader.read4Bytes();
-  let fileName = reader.sliceNBytes(fileNameLength).toString();
-  let extraField = reader.sliceNBytes(extraFieldLength);
-  let fileComment = reader.sliceNBytes(fileCommentLength).toString();
+  let centralDirectories: Array<ICentralDirectory> = [];
 
-  return {
-    signature,
-    version,
-    extractVersion,
-    bitFlag,
-    compression,
-    modTime,
-    modDate,
-    crc32,
-    compressedSize,
-    uncompressedSize,
-    fileNameLength,
-    extraFieldLength,
-    fileCommentLength,
-    diskStart,
-    internalAttributes,
-    externalAttributes,
-    localHeaderOffset,
-    fileName,
-    extraField,
-    fileComment,
-  };
+  while (
+    reader.buffer.includes(
+      Buffer.from(LESignature.CentralDirectory, "hex"),
+      reader.offset
+    )
+  ) {
+    reader.setOffset(
+      reader.findHeader(LESignature.CentralDirectory, reader.offset)
+    );
+    let signature = reader.read4Bytes();
+    let version = versionMade(reader.read2Bytes());
+    let extractVersion = reader.read2Bytes();
+    let bitFlag = readBitFlag(reader.read2Bytes());
+    let compression = compressionMethod(reader.read2Bytes());
+    let modTime = formatModTime(reader.read2Bytes());
+    let modDate = formatModDate(reader.read2Bytes());
+    let crc32 = reader.read4Bytes();
+    let compressedSize = reader.read4Bytes();
+    let uncompressedSize = reader.read4Bytes();
+    let fileNameLength = reader.read2Bytes();
+    let extraFieldLength = reader.read2Bytes();
+    let fileCommentLength = reader.read2Bytes();
+    let diskStart = reader.read2Bytes();
+    let internalAttributes = reader.read2Bytes();
+    let externalAttributes = reader.read4Bytes();
+    let localHeaderOffset = reader.read4Bytes();
+    let fileName = reader.sliceNBytes(fileNameLength).toString();
+    let extraField = reader.sliceNBytes(extraFieldLength);
+    let fileComment = reader.sliceNBytes(fileCommentLength).toString();
+
+    centralDirectories.push({
+      signature,
+      version,
+      extractVersion,
+      bitFlag,
+      compression,
+      modTime,
+      modDate,
+      crc32,
+      compressedSize,
+      uncompressedSize,
+      fileNameLength,
+      extraFieldLength,
+      fileCommentLength,
+      diskStart,
+      internalAttributes,
+      externalAttributes,
+      localHeaderOffset,
+      fileName,
+      extraField,
+      fileComment,
+    });
+  }
+
+  return centralDirectories;
 };
 
 interface IEndCentralDirectory {
@@ -260,28 +282,12 @@ export function unzip(path: string) {
     if (err) console.error(err);
     const reader = new Reader(data);
 
-    let localFileHeaders: Array<ILocalFileHeader> = [];
-
-    while (
-      reader.buffer.includes(
-        Buffer.from(LESignature.LocalFile, "hex"),
-        reader.offset
-      )
-    ) {
-      localFileHeaders.push(readLocalFileHeader(reader));
-    }
-
-    let centralDirectories: Array<ICentralDirectory> = [];
-
-    while (
-      reader.buffer.includes(
-        Buffer.from(LESignature.CentralDirectory, "hex"),
-        reader.offset
-      )
-    ) {
-      centralDirectories.push(readCentralDirectory(reader));
-    }
-
+    let localFileHeaders: Array<ILocalFileHeader> = readLocalFileHeaders(
+      reader
+    );
+    let centralDirectories: Array<ICentralDirectory> = readCentralDirectories(
+      reader
+    );
     let endCentralDirectory = readEndCentralDirectory(reader);
 
     console.log(
