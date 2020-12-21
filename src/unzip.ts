@@ -9,10 +9,53 @@ import {
   OS,
 } from "./util";
 
+interface IBitFlag {
+  isEncrypted: boolean;
+  hasDataDescriptor: boolean;
+  enhancedDeflation: boolean;
+  compressedPatchedData: boolean;
+  strongEncryption: boolean;
+  isUTF8: boolean;
+  maskHeaderValues: boolean;
+}
+
+const readBitFlag = (bitFlag: number): IBitFlag => {
+  // Bit 00: encrypted file
+  // Bit 01: compression option
+  // Bit 02: compression option
+  // Bit 03: data descriptor
+  // Bit 04: enhanced deflation
+  // Bit 05: compressed patched data
+  // Bit 06: strong encryption
+  // Bit 07-10: unused
+  // Bit 11: language encoding
+  // Bit 12: reserved
+  // Bit 13: mask header values
+  // Bit 14-15: reserved
+
+  let isEncrypted = Boolean(bitFlag & 0b1);
+  let hasDataDescriptor = Boolean(bitFlag & 0b1000);
+  let enhancedDeflation = Boolean(bitFlag & 0b1_0000);
+  let compressedPatchedData = Boolean(bitFlag & 0b10_0000);
+  let strongEncryption = Boolean(bitFlag & 0b100_0000);
+  let isUTF8 = Boolean(bitFlag & 0b100_0000_0000);
+  let maskHeaderValues = Boolean(bitFlag & 0b1000_0000_0000);
+
+  return {
+    isEncrypted,
+    hasDataDescriptor,
+    enhancedDeflation,
+    compressedPatchedData,
+    strongEncryption,
+    isUTF8,
+    maskHeaderValues,
+  };
+};
+
 interface ILocalFileHeader {
   signature: number;
   extractVersion: OS;
-  bitFlag: number;
+  bitFlag: IBitFlag;
   compression: CompressionMethod;
   modTime: string;
   modDate: string;
@@ -43,7 +86,7 @@ const readLocalFileHeader = (reader: Reader): ILocalFileHeader => {
   reader.setOffset(reader.findHeader(LESignature.LocalFile));
   let signature = reader.read4Bytes();
   let extractVersion = versionMade(reader.read2Bytes());
-  let bitFlag = reader.read2Bytes();
+  let bitFlag = readBitFlag(reader.read2Bytes());
   let compression = compressionMethod(reader.read2Bytes());
   let modTime = formatModTime(reader.read2Bytes());
   let modDate = formatModDate(reader.read2Bytes());
@@ -75,8 +118,8 @@ const readLocalFileHeader = (reader: Reader): ILocalFileHeader => {
 interface ICentralDirectory {
   signature: number;
   version: OS;
-  extractVersion: OS;
-  bitFlag: number;
+  extractVersion: number;
+  bitFlag: IBitFlag;
   compression: CompressionMethod;
   modTime: string;
   modDate: string;
@@ -120,8 +163,8 @@ const readCentralDirectory = (reader: Reader): ICentralDirectory => {
   reader.setOffset(reader.findHeader(LESignature.CentralDirectory));
   let signature = reader.read4Bytes();
   let version = versionMade(reader.read2Bytes());
-  let extractVersion = versionMade(reader.read2Bytes());
-  let bitFlag = reader.read2Bytes();
+  let extractVersion = reader.read2Bytes();
+  let bitFlag = readBitFlag(reader.read2Bytes());
   let compression = compressionMethod(reader.read2Bytes());
   let modTime = formatModTime(reader.read2Bytes());
   let modDate = formatModDate(reader.read2Bytes());
@@ -214,8 +257,6 @@ export function unzip(path: string) {
   fs.readFile(path, (err, data) => {
     if (err) console.error(err);
     const reader = new Reader(data);
-
-    console.log(reader.buffer.toString("hex").match(/../g).join(" "));
 
     let localFileHeader = readLocalFileHeader(reader);
     let centralDirectory = readCentralDirectory(reader);
