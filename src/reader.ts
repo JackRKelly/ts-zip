@@ -178,7 +178,7 @@ export class Reader {
     };
   }
 
-  readLocalFileHeaders(): Array<LocalFileHeader> {
+  readLocalFileHeaders(): LocalFileHeader[] {
     // 0    | 4 : Local file header signature = 0x04034b50 (read as a little-endian number)
     // 4    | 2 : Version needed to extract (minimum)
     // 6    | 2 : General purpose bit flag
@@ -193,7 +193,7 @@ export class Reader {
     // 30   | n : File name
     // 30+n | m : Extra field
 
-    let localFileHeaders: Array<LocalFileHeader> = [];
+    let localFileHeaders: LocalFileHeader[] = [];
 
     while (this.hasHeader(LESignature.LocalFile)) {
       this.setOffset(this.findHeader(LESignature.LocalFile, this.offset));
@@ -233,7 +233,7 @@ export class Reader {
     return localFileHeaders;
   }
 
-  readCentralDirectories(): Array<CentralDirectory> {
+  readCentralDirectories(): CentralDirectory[] {
     // 0      | 4	: Central directory file header signature = 0x02014b50
     // 4      | 2	: Version made by
     // 6      | 2	: Version needed to extract (minimum)
@@ -255,7 +255,7 @@ export class Reader {
     // 46+n   | m	: Extra field
     // 46+n+m | k	: File comment
 
-    let centralDirectories: Array<CentralDirectory> = [];
+    let centralDirectories: CentralDirectory[] = [];
 
     while (this.hasHeader(LESignature.CentralDirectory)) {
       this.setOffset(

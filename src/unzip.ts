@@ -12,8 +12,8 @@ export function unzip(path: string) {
     if (err) console.error(err);
     const reader = new Reader(data);
 
-    let localFileHeaders: Array<LocalFileHeader> = reader.readLocalFileHeaders();
-    let centralDirectories: Array<CentralDirectory> = reader.readCentralDirectories();
+    let localFileHeaders: LocalFileHeader[] = reader.readLocalFileHeaders();
+    let centralDirectories: CentralDirectory[] = reader.readCentralDirectories();
     let endCentralDirectory: EndCentralDirectory = reader.readEndCentralDirectory();
 
     console.log(
