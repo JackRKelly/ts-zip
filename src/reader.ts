@@ -7,7 +7,7 @@ import {
   OS,
 } from "./util";
 
-export interface BitFlag {
+interface BitFlag {
   isEncrypted: boolean;
   hasDataDescriptor: boolean;
   enhancedDeflation: boolean;
@@ -17,7 +17,7 @@ export interface BitFlag {
   maskHeaderValues: boolean;
 }
 
-export interface LocalFileHeader {
+interface LocalFileHeader {
   signature: number;
   extractVersion: OS;
   bitFlag: BitFlag;
@@ -34,7 +34,7 @@ export interface LocalFileHeader {
   fileData: Buffer;
 }
 
-export interface CentralDirectory {
+interface CentralDirectory {
   signature: number;
   version: OS;
   extractVersion: number;
@@ -57,7 +57,7 @@ export interface CentralDirectory {
   fileComment: string;
 }
 
-export interface EndCentralDirectory {
+interface EndCentralDirectory {
   signature: number;
   diskNumber: number;
   diskCentralStart: number;
@@ -74,7 +74,7 @@ export enum Endian {
   Big,
 }
 
-export enum LESignature {
+enum LESignature {
   LocalFile = "504b0304",
   DataDescriptor = "504b0708",
   CentralDirectory = "504b0102",

@@ -1,10 +1,4 @@
-import {
-  Reader,
-  Endian,
-  LocalFileHeader,
-  CentralDirectory,
-  EndCentralDirectory,
-} from "./reader";
+import { Reader, Endian } from "./reader";
 import * as fs from "fs";
 
 export function unzip(path: string) {
@@ -12,9 +6,9 @@ export function unzip(path: string) {
     if (err) console.error(err);
     const reader = new Reader(data);
 
-    let localFileHeaders: LocalFileHeader[] = reader.readLocalFileHeaders();
-    let centralDirectories: CentralDirectory[] = reader.readCentralDirectories();
-    let endCentralDirectory: EndCentralDirectory = reader.readEndCentralDirectory();
+    let localFileHeaders = reader.readLocalFileHeaders();
+    let centralDirectories = reader.readCentralDirectories();
+    let endCentralDirectory = reader.readEndCentralDirectory();
 
     console.log(
       localFileHeaders,
