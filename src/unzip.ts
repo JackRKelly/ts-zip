@@ -66,6 +66,7 @@ interface ILocalFileHeader {
   extraFieldLength: number;
   fileName: string;
   extraField: Buffer;
+  fileData: Buffer;
 }
 
 const readLocalFileHeaders = (reader: Reader): Array<ILocalFileHeader> => {
@@ -100,6 +101,7 @@ const readLocalFileHeaders = (reader: Reader): Array<ILocalFileHeader> => {
     let extraFieldLength = reader.read2Bytes();
     let fileName = reader.sliceNBytes(fileNameLength).toString();
     let extraField = reader.sliceNBytes(extraFieldLength);
+    let fileData = reader.sliceNBytes(compressedSize);
 
     localFileHeaders.push({
       signature,
@@ -115,6 +117,7 @@ const readLocalFileHeaders = (reader: Reader): Array<ILocalFileHeader> => {
       extraFieldLength,
       fileName,
       extraField,
+      fileData,
     });
   }
 
@@ -278,7 +281,9 @@ export function unzip(path: string) {
     let centralDirectories: Array<ICentralDirectory> = readCentralDirectories(
       reader
     );
-    let endCentralDirectory = readEndCentralDirectory(reader);
+    let endCentralDirectory: IEndCentralDirectory = readEndCentralDirectory(
+      reader
+    );
 
     console.log(
       localFileHeaders,
