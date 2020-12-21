@@ -20,27 +20,27 @@ describe("Unzip", () => {
 
 describe("Utilities", () => {
   test("Format modification time function", () => {
-    expect(formatModTime(19368) === "09:29:16");
+    expect(formatModTime(19368)).to.equal("09:29:16");
   });
   test("Format modification date function", () => {
-    expect(formatModDate(20875) === "12/11/2020");
+    expect(formatModDate(20875)).to.equal("12/11/2020");
   });
   test("Pad number to length of 0", () => {
-    expect(padNumber(1, 0) === "1");
+    expect(padNumber(1, 0)).to.equal("1");
   });
   test("Pad number to length of 2", () => {
-    expect(padNumber(1, 2) === "01");
+    expect(padNumber(1, 2)).to.equal("01");
   });
   test("Pad number to length of 4", () => {
-    expect(padNumber(1, 4) === "0001");
+    expect(padNumber(1, 4)).to.equal("0001");
   });
   test("None compression method", () => {
-    expect(compressionMethod(0) === CompressionMethod.None);
+    expect(compressionMethod(0)).to.equal(CompressionMethod.None);
   });
   test("Reserved compression method", () => {
-    expect(compressionMethod(13) === CompressionMethod.Reserved);
+    expect(compressionMethod(13)).to.equal(CompressionMethod.Reserved);
   });
   test("PPMd compression method", () => {
-    expect(compressionMethod(98) === CompressionMethod.PPMd);
+    expect(compressionMethod(98)).to.equal(CompressionMethod.PPMd);
   });
 });
