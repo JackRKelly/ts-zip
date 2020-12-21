@@ -1,3 +1,15 @@
+export enum Endian {
+  Little,
+  Big,
+}
+
+export enum LESignature {
+  LocalFile = "504b0304",
+  DataDescriptor = "504b0708",
+  CentralDirectory = "504b0102",
+  EndCentralDirectory = "504b0506",
+}
+
 export enum OS {
   MSDOS = 0,
   Amiga = 1,

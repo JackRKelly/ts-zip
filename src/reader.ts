@@ -5,6 +5,8 @@ import {
   CompressionMethod,
   versionMade,
   OS,
+  Endian,
+  LESignature,
 } from "./util";
 
 interface BitFlag {
@@ -68,22 +70,6 @@ interface EndCentralDirectory {
   commentLength: number;
   comment: string;
 }
-
-export enum Endian {
-  Little,
-  Big,
-}
-
-enum LESignature {
-  LocalFile = "504b0304",
-  DataDescriptor = "504b0708",
-  CentralDirectory = "504b0102",
-  EndCentralDirectory = "504b0506",
-}
-
-//Local file header when the endianess is little.
-const LE_LOCAL_FILE_HEADER: Buffer = Buffer.from(LESignature.LocalFile, "hex");
-
 export class Reader {
   buffer: Buffer;
   endian: Endian;
@@ -211,6 +197,10 @@ export class Reader {
       let fileName = this.sliceNBytes(fileNameLength).toString();
       let extraField = this.sliceNBytes(extraFieldLength);
       let fileData = this.sliceNBytes(compressedSize);
+
+      if (bitFlag.hasDataDescriptor) {
+        console.log(this.findHeader(LESignature.DataDescriptor));
+      }
 
       localFileHeaders.push({
         signature,
@@ -348,7 +338,10 @@ export class Reader {
     this.offset = 0;
     this.buffer = zip;
     //Determine endianess on reader initialization.
-    if (zip.readUInt32LE() === LE_LOCAL_FILE_HEADER.readUInt32LE()) {
+    if (
+      zip.readUInt32LE() ===
+      Buffer.from(LESignature.LocalFile, "hex").readUInt32LE()
+    ) {
       this.endian = Endian.Little;
     } else {
       this.endian = Endian.Big;
