@@ -85,12 +85,7 @@ const readLocalFileHeaders = (reader: Reader): Array<ILocalFileHeader> => {
 
   let localFileHeaders: Array<ILocalFileHeader> = [];
 
-  while (
-    reader.buffer.includes(
-      Buffer.from(LESignature.LocalFile, "hex"),
-      reader.offset
-    )
-  ) {
+  while (reader.hasHeader(LESignature.LocalFile)) {
     reader.setOffset(reader.findHeader(LESignature.LocalFile, reader.offset));
     let signature = reader.read4Bytes();
     let extractVersion = versionMade(reader.read2Bytes());
@@ -173,12 +168,7 @@ const readCentralDirectories = (reader: Reader): Array<ICentralDirectory> => {
 
   let centralDirectories: Array<ICentralDirectory> = [];
 
-  while (
-    reader.buffer.includes(
-      Buffer.from(LESignature.CentralDirectory, "hex"),
-      reader.offset
-    )
-  ) {
+  while (reader.hasHeader(LESignature.CentralDirectory)) {
     reader.setOffset(
       reader.findHeader(LESignature.CentralDirectory, reader.offset)
     );

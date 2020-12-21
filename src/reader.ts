@@ -62,6 +62,10 @@ export class Reader {
     return read;
   }
 
+  hasHeader(signature: LESignature): boolean {
+    return this.buffer.includes(Buffer.from(signature, "hex"), this.offset);
+  }
+
   findHeader(header: string, byteOffset: number = 0): number {
     return this.buffer.indexOf(header, byteOffset, "hex");
   }
