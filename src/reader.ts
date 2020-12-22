@@ -227,6 +227,33 @@ export class Reader {
       );
 
       if (bitFlag.isEncrypted) {
+        // 1) Initialize the three 32-bit keys with the password.
+        // 2) Read and decrypt the 12-byte encryption header, further
+        //    initializing the encryption keys.
+        // 3) Read and decrypt the compressed data stream using the
+        //    encryption keys.
+        //
+        // Key(0) <- 305419896
+        // Key(1) <- 591751049
+        // Key(2) <- 878082192
+        //
+        // loop for i <- 0 to length(password)-1
+        //     update_keys(password(i))
+        // end loop
+        //
+        // Where update_keys() is defined as:
+        //
+        // update_keys(char):
+        //   Key(0) <- crc32(key(0),char)
+        //   Key(1) <- Key(1) + (Key(0) & 000000ffH)
+        //   Key(1) <- Key(1) * 134775813 + 1
+        //   Key(2) <- crc32(key(2),key(1) >> 24)
+        // end update_keys
+        //
+        // Where crc32(old_crc,char) is a routine that given a CRC value and a
+        // character, returns an updated CRC value after applying the CRC-32
+        // algorithm described elsewhere in this document.
+        //
         // Read the 12-byte encryption header into Buffer, in locations
         // Buffer(0) thru Buffer(11).
         //
