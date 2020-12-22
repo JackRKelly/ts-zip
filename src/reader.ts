@@ -212,7 +212,17 @@ export class Reader {
       );
 
       if (bitFlag.hasDataDescriptor) {
-        console.log(this.findSignature(LESignature.DataDescriptor));
+        // 0    | 0/4 : Optional data descriptor signature = 0x08074b50
+        // 0/4  | 4   : CRC-32 of uncompressed data
+        // 4/8  | 4   : Compressed size
+        // 8/12 | 4   : Uncompressed size
+
+        this.setOffset(this.findSignature(LESignature.DataDescriptor));
+        let signature = this.read4Bytes();
+
+        crc32 = this.read4Bytes();
+        compressedSize = this.read4Bytes();
+        uncompressedSize = this.read4Bytes();
       }
 
       localFileHeaders.push({
