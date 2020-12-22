@@ -226,15 +226,43 @@ export class Reader {
         compression
       );
 
+      if (bitFlag.isEncrypted) {
+        // Read the 12-byte encryption header into Buffer, in locations
+        // Buffer(0) thru Buffer(11).
+        //
+        // loop for i <- 0 to 11
+        //     C <- buffer(i) ^ decrypt_byte()
+        //     update_keys(C)
+        //     buffer(i) <- C
+        // end loop
+        //
+        // Where decrypt_byte() is defined as:
+        //
+        // unsigned char decrypt_byte()
+        //     local unsigned short temp
+        //     temp <- Key(2) | 2
+        //     decrypt_byte <- (temp * (temp ^ 1)) >> 8
+        // end decrypt_byte
+
+        let encryption = this.sliceNBytes(12);
+
+        // The compressed data stream can be decrypted as follows:
+        //
+        // loop until done
+        //     read a character into C
+        //     Temp <- C ^ decrypt_byte()
+        //     update_keys(temp)
+        //     output Temp
+        // end loop
+      }
+
       if (bitFlag.hasDataDescriptor) {
         // 0    | 0/4 : Optional data descriptor signature = 0x08074b50
         // 0/4  | 4   : CRC-32 of uncompressed data
         // 4/8  | 4   : Compressed size
         // 8/12 | 4   : Uncompressed size
-
         this.setOffset(this.findSignature(LESignature.DataDescriptor));
         let signature = this.read4Bytes();
-
         crc32 = this.read4Bytes();
         compressedSize = this.read4Bytes();
         uncompressedSize = this.read4Bytes();
@@ -373,8 +401,8 @@ export class Reader {
   constructor(zip: Buffer) {
     this.offset = 0;
     this.buffer = zip;
-    //Determine endianess on reader initialization.
 
+    //Determine endianess on reader initialization.
     if (zip.readUInt32LE() === LESignature.LocalFile) {
       this.endian = Endian.Little;
     } else {
