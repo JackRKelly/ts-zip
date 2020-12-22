@@ -196,7 +196,7 @@ export class Reader {
       let extraFieldLength = this.read2Bytes();
       let fileName = this.sliceNBytes(fileNameLength).toString();
       let extraField = this.sliceNBytes(extraFieldLength);
-      let fileData = this.sliceNBytes(compressedSize);
+      let fileData = this.sliceNBytes(uncompressedSize);
 
       if (bitFlag.hasDataDescriptor) {
         console.log(this.findHeader(LESignature.DataDescriptor));

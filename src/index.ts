@@ -4,4 +4,4 @@
 import { unzip } from "./unzip";
 import * as path from "path";
 
-unzip(path.join(__dirname, "../test/test3.zip"));
+unzip(path.join(__dirname, "../test/test4.zip"));
