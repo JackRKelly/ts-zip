@@ -120,12 +120,12 @@ export class Reader {
     return read;
   }
 
-  hasHeader(signature: LESignature): boolean {
-    return this.buffer.includes(Buffer.from(signature, "hex"), this.offset);
+  hasSignature(signature: LESignature): boolean {
+    return this.buffer.includes(signature, this.offset, "hex");
   }
 
-  findHeader(header: string, byteOffset: number = 0): number {
-    return this.buffer.indexOf(header, byteOffset, "hex");
+  findSignature(signature: LESignature, byteOffset: number = 0): number {
+    return this.buffer.indexOf(signature, byteOffset, "hex");
   }
 
   setOffset(offset: number): void {
@@ -133,11 +133,11 @@ export class Reader {
   }
 
   uncompressFileData(data: Buffer, compression: CompressionMethod): Buffer {
-    console.log(data, compression);
-    if (compression === CompressionMethod.None) {
-      return data;
-    } else if (compression === CompressionMethod.Deflate) {
-      return zlib.inflateRawSync(data);
+    switch (compression) {
+      case CompressionMethod.None:
+        return data;
+      case CompressionMethod.Deflate:
+        return zlib.inflateRawSync(data);
     }
   }
 
@@ -191,8 +191,8 @@ export class Reader {
 
     let localFileHeaders: LocalFileHeader[] = [];
 
-    while (this.hasHeader(LESignature.LocalFile)) {
-      this.setOffset(this.findHeader(LESignature.LocalFile, this.offset));
+    while (this.hasSignature(LESignature.LocalFile)) {
+      this.setOffset(this.findSignature(LESignature.LocalFile, this.offset));
       let signature = this.read4Bytes();
       let extractVersion = versionMade(this.read2Bytes());
       let bitFlag = this.readBitFlag(this.read2Bytes());
@@ -212,7 +212,7 @@ export class Reader {
       );
 
       if (bitFlag.hasDataDescriptor) {
-        console.log(this.findHeader(LESignature.DataDescriptor));
+        console.log(this.findSignature(LESignature.DataDescriptor));
       }
 
       localFileHeaders.push({
@@ -260,9 +260,9 @@ export class Reader {
 
     let centralDirectories: CentralDirectory[] = [];
 
-    while (this.hasHeader(LESignature.CentralDirectory)) {
+    while (this.hasSignature(LESignature.CentralDirectory)) {
       this.setOffset(
-        this.findHeader(LESignature.CentralDirectory, this.offset)
+        this.findSignature(LESignature.CentralDirectory, this.offset)
       );
       let signature = this.read4Bytes();
       let version = versionMade(this.read2Bytes());
@@ -323,7 +323,7 @@ export class Reader {
     // 20 | 2 : Comment length (n)
     // 22 | n : Comment
 
-    this.setOffset(this.findHeader(LESignature.EndCentralDirectory));
+    this.setOffset(this.findSignature(LESignature.EndCentralDirectory));
     let signature = this.read4Bytes();
     let diskNumber = this.read2Bytes();
     let diskCentralStart = this.read2Bytes();
