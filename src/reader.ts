@@ -8,6 +8,7 @@ import {
   Endian,
   LESignature,
 } from "./util";
+import * as zlib from "zlib";
 
 interface BitFlag {
   isEncrypted: boolean;
@@ -131,6 +132,15 @@ export class Reader {
     this.offset = offset;
   }
 
+  uncompressFileData(data: Buffer, compression: CompressionMethod): Buffer {
+    console.log(data, compression);
+    if (compression === CompressionMethod.None) {
+      return data;
+    } else if (compression === CompressionMethod.Deflate) {
+      return zlib.inflateRawSync(data);
+    }
+  }
+
   readBitFlag(bitFlag: number): BitFlag {
     // Bit 00: encrypted file
     // Bit 01: compression option
@@ -196,7 +206,10 @@ export class Reader {
       let extraFieldLength = this.read2Bytes();
       let fileName = this.sliceNBytes(fileNameLength).toString();
       let extraField = this.sliceNBytes(extraFieldLength);
-      let fileData = this.sliceNBytes(uncompressedSize);
+      let fileData = this.uncompressFileData(
+        this.sliceNBytes(uncompressedSize),
+        compression
+      );
 
       if (bitFlag.hasDataDescriptor) {
         console.log(this.findHeader(LESignature.DataDescriptor));
