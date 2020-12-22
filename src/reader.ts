@@ -124,8 +124,8 @@ export class Reader {
     return this.buffer.includes(signature, this.offset, "hex");
   }
 
-  findSignature(signature: LESignature, byteOffset: number = 0): number {
-    return this.buffer.indexOf(signature, byteOffset, "hex");
+  findSignature(signature: LESignature): number {
+    return this.buffer.indexOf(signature, this.offset, "hex");
   }
 
   setOffset(offset: number): void {
@@ -192,7 +192,7 @@ export class Reader {
     let localFileHeaders: LocalFileHeader[] = [];
 
     while (this.hasSignature(LESignature.LocalFile)) {
-      this.setOffset(this.findSignature(LESignature.LocalFile, this.offset));
+      this.setOffset(this.findSignature(LESignature.LocalFile));
       let signature = this.read4Bytes();
       let extractVersion = versionMade(this.read2Bytes());
       let bitFlag = this.readBitFlag(this.read2Bytes());
@@ -271,9 +271,7 @@ export class Reader {
     let centralDirectories: CentralDirectory[] = [];
 
     while (this.hasSignature(LESignature.CentralDirectory)) {
-      this.setOffset(
-        this.findSignature(LESignature.CentralDirectory, this.offset)
-      );
+      this.setOffset(this.findSignature(LESignature.CentralDirectory));
       let signature = this.read4Bytes();
       let version = versionMade(this.read2Bytes());
       let extractVersion = this.read2Bytes();
