@@ -4,10 +4,10 @@ export enum Endian {
 }
 
 export enum LESignature {
-  LocalFile = "504b0304",
-  DataDescriptor = "504b0708",
-  CentralDirectory = "504b0102",
-  EndCentralDirectory = "504b0506",
+  LocalFile = 0x04034b50,
+  DataDescriptor = 0x08074b50,
+  CentralDirectory = 0x02014b50,
+  EndCentralDirectory = 0x06054b50,
 }
 
 export enum OS {

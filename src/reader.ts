@@ -121,11 +121,26 @@ export class Reader {
   }
 
   hasSignature(signature: LESignature): boolean {
-    return this.buffer.includes(signature, this.offset, "hex");
+    let cursor = this.offset;
+    while (this.buffer.readUInt32LE(cursor) !== signature) {
+      cursor += 1;
+      if (cursor + 4 > this.buffer.length) {
+        return false;
+      }
+    }
+    return true;
   }
 
   findSignature(signature: LESignature): number {
-    return this.buffer.indexOf(signature, this.offset, "hex");
+    let cursor = this.offset;
+    while (this.buffer.readUInt32LE(cursor) !== signature) {
+      cursor += 1;
+      if (cursor + 4 > this.buffer.length) {
+        cursor = -1;
+        break;
+      }
+    }
+    return cursor;
   }
 
   setOffset(offset: number): void {
@@ -359,10 +374,8 @@ export class Reader {
     this.offset = 0;
     this.buffer = zip;
     //Determine endianess on reader initialization.
-    if (
-      zip.readUInt32LE() ===
-      Buffer.from(LESignature.LocalFile, "hex").readUInt32LE()
-    ) {
+
+    if (zip.readUInt32LE() === LESignature.LocalFile) {
       this.endian = Endian.Little;
     } else {
       this.endian = Endian.Big;
