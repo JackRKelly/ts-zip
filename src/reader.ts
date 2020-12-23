@@ -121,14 +121,7 @@ export class Reader {
   }
 
   hasSignature(signature: LESignature): boolean {
-    let cursor = this.offset;
-    while (this.buffer.readUInt32LE(cursor) !== signature) {
-      cursor += 1;
-      if (cursor + 4 > this.buffer.length) {
-        return false;
-      }
-    }
-    return true;
+    return this.findSignature(signature) !== -1;
   }
 
   findSignature(signature: LESignature): number {
@@ -136,8 +129,7 @@ export class Reader {
     while (this.buffer.readUInt32LE(cursor) !== signature) {
       cursor += 1;
       if (cursor + 4 > this.buffer.length) {
-        cursor = -1;
-        break;
+        return -1;
       }
     }
     return cursor;
