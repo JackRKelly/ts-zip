@@ -1,6 +1,6 @@
 {
   "name": "ts-zip",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "start": "nodemon src -x ts-node -e ts -w src",
     "test": "jest"
