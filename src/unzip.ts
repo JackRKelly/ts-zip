@@ -1,5 +1,5 @@
 import { Reader } from "./reader";
-import { Endian } from "./util";
+import { Endian } from "./types";
 import * as fs from "fs";
 
 export function unzip(path: string) {

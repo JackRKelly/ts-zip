@@ -2,75 +2,19 @@ import {
   compressionMethod,
   formatModTime,
   formatModDate,
-  CompressionMethod,
   versionMade,
-  OS,
-  Endian,
   LESignature,
 } from "./util";
 import * as zlib from "zlib";
+import {
+  Endian,
+  CompressionMethod,
+  BitFlag,
+  LocalFileHeader,
+  CentralDirectory,
+  EndCentralDirectory,
+} from "./types";
 
-interface BitFlag {
-  isEncrypted: boolean;
-  hasDataDescriptor: boolean;
-  enhancedDeflation: boolean;
-  compressedPatchedData: boolean;
-  strongEncryption: boolean;
-  isUTF8: boolean;
-  maskHeaderValues: boolean;
-}
-
-interface LocalFileHeader {
-  signature: number;
-  extractVersion: OS;
-  bitFlag: BitFlag;
-  compression: CompressionMethod;
-  modTime: string;
-  modDate: string;
-  crc32: number;
-  compressedSize: number;
-  uncompressedSize: number;
-  fileNameLength: number;
-  extraFieldLength: number;
-  fileName: string;
-  extraField: Buffer;
-  fileData: Buffer;
-}
-
-interface CentralDirectory {
-  signature: number;
-  version: OS;
-  extractVersion: number;
-  bitFlag: BitFlag;
-  compression: CompressionMethod;
-  modTime: string;
-  modDate: string;
-  crc32: number;
-  compressedSize: number;
-  uncompressedSize: number;
-  fileNameLength: number;
-  extraFieldLength: number;
-  fileCommentLength: number;
-  diskStart: number;
-  internalAttributes: number;
-  externalAttributes: number;
-  localHeaderOffset: number;
-  fileName: string;
-  extraField: Buffer;
-  fileComment: string;
-}
-
-interface EndCentralDirectory {
-  signature: number;
-  diskNumber: number;
-  diskCentralStart: number;
-  numberOfDirectoryRecords: number;
-  totalNumberOfRecords: number;
-  sizeOfCentralDirectory: number;
-  offsetOfCentralDirectory: number;
-  commentLength: number;
-  comment: string;
-}
 export class Reader {
   buffer: Buffer;
   endian: Endian;
